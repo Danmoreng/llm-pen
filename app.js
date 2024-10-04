@@ -1,36 +1,65 @@
 // Select elements
-const codeOutput = document.getElementById('codeOutput');
-const chatInput = document.getElementById('chatInput');
-const sendChatButton = document.getElementById('sendChat');
-const chatMessages = document.getElementById('chatMessages');
-const modelSelect = document.getElementById('modelSelect'); // Model selection dropdown
-
-// API Key Elements
+const serviceSelect = document.getElementById('serviceSelect');
+const localModelSelectContainer = document.getElementById('localModelSelectContainer');
+const localModelSelect = document.getElementById('localModelSelect');
+const openaiContainer = document.getElementById('openaiContainer');
 const apiKeyInput = document.getElementById('apiKeyInput');
 const saveApiKeyButton = document.getElementById('saveApiKey');
 const apiStatus = document.getElementById('apiStatus');
+const chatInput = document.getElementById('chatInput');
+const sendChatButton = document.getElementById('sendChat');
+const modelSelect = document.getElementById('modelSelect');
 
-// Variable to store the API key and model selection
+// Variables to store API key and selected model
 let apiKey = '';
-let selectedModel = 'gpt-4o';  // Default model
+let selectedModel = '';
+let selectedService = '';
 
 // Array to store the conversation history
 let conversationHistory = [];
 
-// Function to save the API key and enable input
-saveApiKeyButton.addEventListener('click', () => {
-  apiKey = apiKeyInput.value.trim();
+// Service selection logic
+serviceSelect.addEventListener('change', () => {
+    selectedService = serviceSelect.value;
 
-  if (apiKey) {
-    // Enable chat input and button
-    chatInput.disabled = false;
-    sendChatButton.disabled = false;
-    apiStatus.textContent = 'API Key saved successfully.';
-    apiStatus.style.color = 'green';
-  } else {
-    apiStatus.textContent = 'Please enter a valid API key.';
-    apiStatus.style.color = 'red';
-  }
+    // Reset the visibility of elements
+    localModelSelectContainer.style.display = 'none';
+    openaiContainer.style.display = 'none';
+    chatInput.disabled = true;
+    sendChatButton.disabled = true;
+
+    if (selectedService === 'local') {
+        // Show local model select
+        localModelSelectContainer.style.display = 'block';
+        apiStatus.textContent = 'Using local model (Ollama). Select a model to continue.';
+        apiStatus.style.color = 'blue';
+    } else if (selectedService === 'openai') {
+        // Show OpenAI API key and model select
+        openaiContainer.style.display = 'block';
+        apiStatus.textContent = 'Please enter your OpenAI API key and select a model.';
+        apiStatus.style.color = 'black';
+    }
+});
+
+// Save API key button logic
+saveApiKeyButton.addEventListener('click', () => {
+    apiKey = apiKeyInput.value.trim();
+
+    if (apiKey && selectedService === 'openai') {
+        // Check if model has been selected as well
+        if (selectedModel) {
+            chatInput.disabled = false;
+            sendChatButton.disabled = false;
+            apiStatus.textContent = 'API Key saved successfully. Ready to chat.';
+            apiStatus.style.color = 'green';
+        } else {
+            apiStatus.textContent = 'API Key saved. Please select an OpenAI model to enable chat.';
+            apiStatus.style.color = 'orange';
+        }
+    } else {
+        apiStatus.textContent = 'Please enter a valid API key.';
+        apiStatus.style.color = 'red';
+    }
 });
 
 const functions = [
@@ -135,9 +164,30 @@ Remember:
 
 // Handle model selection
 modelSelect.addEventListener('change', () => {
-  selectedModel = modelSelect.value;  // Update selected model when user selects it
+    if (selectedService === 'openai') {
+        selectedModel = modelSelect.value; // Get the selected OpenAI model
+        if (apiKey) {
+            chatInput.disabled = false;
+            sendChatButton.disabled = false;
+            apiStatus.textContent = `Using ${selectedModel} from OpenAI. Ready to chat.`;
+            apiStatus.style.color = 'green';
+        } else {
+            apiStatus.textContent = `Model ${selectedModel} selected. Please enter your API key.`;
+            apiStatus.style.color = 'orange';
+        }
+    }
 });
 
+// Handle local model selection (Ollama)
+localModelSelect.addEventListener('change', () => {
+    if (selectedService === 'local') {
+        selectedModel = localModelSelect.value; // Get the selected local model
+        chatInput.disabled = false;
+        sendChatButton.disabled = false;
+        apiStatus.textContent = `Using ${selectedModel} from Ollama. Ready to chat.`;
+        apiStatus.style.color = 'green';
+    }
+});
 
 // Function to display messages in the chat with Markdown rendering for GPT responses
 function displayMessage(role, content, isFunctionCall = false) {
@@ -149,18 +199,99 @@ function displayMessage(role, content, isFunctionCall = false) {
     chatMessages.innerHTML += `<div class="${messageClass}">${formattedContent}</div>`;
 }
 
-// Function to send a request to ChatGPT API
 async function sendChat() {
     const userMessage = chatInput.value;
+    console.log(userMessage, selectedService, selectedModel);
     if (!userMessage) return;
 
     // Add user message to the conversation history
-    conversationHistory.push({ role: "user", content: userMessage });
+    conversationHistory.push({ role: 'user', content: userMessage });
 
     // Show the user message in the chat window
     displayMessage('user', userMessage);
     chatInput.value = '';
 
+    if (selectedService === 'local') {
+        await sendChatToOllama(); // Send to local Ollama
+    } else if (selectedService === 'openai') {
+        await sendChatToOpenAI(); // Send to OpenAI
+    }
+}
+
+// Function to send a request to Ollama (local LLM)
+async function sendChatToOllama() {
+    try {
+        const selectedLocalModel = localModelSelect.value;
+
+        const response = await fetch('http://localhost:11434/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: selectedLocalModel, // Selected local model from Ollama
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    ...conversationHistory
+                ],
+                temperature: 0.3,
+                functions: functions,
+                function_call: 'auto'
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error?.message || 'An error occurred while communicating with Ollama.');
+        }
+
+        const choice = data.choices[0];
+
+        if (choice.finish_reason === 'function_call') {
+            const functionCall = choice.message.function_call;
+
+            const functionName = functionCall.name;
+            const functionArgs = JSON.parse(functionCall.arguments);
+
+            displayMessage(
+                'gpt',
+                `Called function: ${functionName} with arguments: ${JSON.stringify(functionArgs)}`,
+                true
+            );
+
+            conversationHistory.push({
+                role: 'assistant',
+                content: null,
+                function_call: functionCall
+            });
+
+            // Call the appropriate function
+            if (functionName === 'replaceCode') {
+                replaceCode(functionArgs.newCode);
+            } else if (functionName === 'updateCodePart') {
+                updateCodePart(functionArgs.target, functionArgs.newContent);
+            } else if (functionName === 'addNewCode') {
+                addNewCode(functionArgs.newCode);
+            }
+        } else {
+            const botMessage = choice.message.content;
+
+            conversationHistory.push({ role: 'assistant', content: botMessage });
+
+            displayMessage('gpt', botMessage);
+        }
+    } catch (error) {
+        chatMessages.innerHTML += `<p>Error: ${error.message}</p>`;
+    }
+}
+
+
+// Function to send a request to ChatGPT API
+async function sendChatToOpenAI() {
+    console.log("OpenAI called");
+    console.log(selectedService, selectedModel);
+    if (!apiKey || !selectedModel) return; // Ensure all are set before making the request
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
@@ -169,7 +300,7 @@ async function sendChat() {
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: selectedModel,  // Use the selected model for the request
+                model: selectedModel,  // Use the selected OpenAI model
                 messages: [
                     { role: "system", content: systemPrompt },
                     ...conversationHistory
