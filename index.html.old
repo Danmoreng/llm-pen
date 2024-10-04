@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Code Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- CodeMirror Default CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+
+    <!-- CodeMirror Dracula Theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+</head>
+<body>
+<div class="container">
+    <!-- Chat Section -->
+    <div class="chat-section">
+        <!-- Service Selection (Local vs OpenAI) -->
+        <label for="serviceSelect">Select Service:</label>
+        <select id="serviceSelect">
+            <option value="-" selected>Select Service</option>
+            <option value="local">Local (Ollama)</option>
+            <option value="openai">OpenAI</option>
+        </select>
+
+        <!-- Local Models Selection (Hidden Initially) -->
+        <div id="localModelSelectContainer" style="display:none;">
+            <label for="localModelSelect">Select Local Model:</label>
+            <select id="localModelSelect">
+                <option value="" selected>Select Model</option>
+                <option value="qwen2.5:14b">Qwen2.5:14b</option>
+                <option value="llama3.1">Llama3.1</option>
+                <option value="qwen2.5">Qwen2.5</option>
+            </select>
+        </div>
+
+        <!-- OpenAI API Key and Model Selection (Hidden Initially) -->
+        <div id="openaiContainer" style="display:none;">
+            <label for="apiKeyInput">Enter your OpenAI API Key:</label>
+            <input type="password" id="apiKeyInput" placeholder="Your API Key here...">
+            <button id="saveApiKey">Save API Key</button>
+            <p id="apiStatus"></p>
+
+            <!-- OpenAI Model Selection -->
+            <label for="modelSelect">Select OpenAI Model:</label>
+            <select id="modelSelect">
+                <option value="" selected>Select Model</option>
+                <option value="gpt-4o">GPT-4o</option>
+                <option value="gpt-4o-mini">GPT-4o-Mini</option>
+            </select>
+        </div>
+
+        <!-- Chat Input and Send Button -->
+        <div id="chatMessages"></div>
+        <textarea id="chatInput" placeholder="Enter your request..." disabled></textarea>
+        <button id="sendChat" disabled>Send</button>
+    </div>
+
+    <!-- Editor and Output Section -->
+    <div class="right-section">
+        <div class="editor-output-container">
+            <!-- Code Editor Section -->
+            <div class="editor-section">
+                <h2>Code Editor</h2>
+                <textarea id="codeEditor"></textarea>
+            </div>
+
+            <!-- Iframe for live rendering -->
+            <div class="output-section">
+                <h2>Live Preview</h2>
+                <iframe id="codeOutput" sandbox="allow-scripts"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CodeMirror JS Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/htmlmixed/htmlmixed.min.js"></script>
+
+<!-- Marked.js for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- Your JavaScript -->
+<script src="app.js.old"></script>
+</body>
+</html>
