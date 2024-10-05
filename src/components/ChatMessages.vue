@@ -128,29 +128,4 @@ function messageClass(message) {
   flex-grow: 1;
   overflow-y: auto; /* Allow scrolling when content overflows */
 }
-
-/* To make sure chat container grows with the page, ensure it's inside a flex container */
-#app, .container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.container {
-  display: flex;
-  flex-direction: row;
-}
-
-.chat-section {
-  flex-grow: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.editor-section, .output-section {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
 </style>
