@@ -38,6 +38,10 @@ export const useServiceStore = defineStore('serviceStore', {
       });
     },
 
+    resetChat() {
+      this.chatMessages = [];
+    },
+
     async sendChatMessage(userMessage) {
       this.isLoading = true;
       this.errorMessage = null;

@@ -11,7 +11,7 @@
     </div>
 
     <div class="editor">
-      <h2>JavaScript</h2>
+      <h2>JS</h2>
       <textarea v-model="editorStore.jsContent"></textarea>
     </div>
   </div>

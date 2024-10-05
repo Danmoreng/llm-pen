@@ -1,7 +1,7 @@
 <template>
   <div id="chatMessages" ref="chatContainer" class="chat-container">
     <!-- Loop through the messages and render them based on their role -->
-    <div v-for="(message, index) in chatMessages" :key="index" :class="messageClass(message)">
+    <div v-for="(message, index) in serviceStore.chatMessages" :key="index" :class="messageClass(message)">
       <!-- User and assistant messages -->
       <p v-if="message.role === 'user' || message.role === 'assistant'" v-html="marked(message.content)"></p>
 
@@ -38,7 +38,6 @@ import { marked } from 'marked';
 
 // Access the chatMessages from the store
 const serviceStore = useServiceStore();
-const chatMessages = serviceStore.chatMessages;
 
 // Reference for the chat container (to control scroll)
 const chatContainer = ref(null);
@@ -56,7 +55,7 @@ const toggleExpand = (index) => {
 };
 
 // Watch for changes in chat messages and scroll to the bottom when a new message is added
-watch(chatMessages, async () => {
+watch(serviceStore.chatMessages, async () => {
   // Wait for the DOM to finish updating
   await nextTick();
   // Scroll the chat container to the bottom
