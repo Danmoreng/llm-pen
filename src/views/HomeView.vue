@@ -15,15 +15,17 @@
 
     <!-- Right Section (Editor and Output) -->
     <div class="right-section">
+      <button @click="toggleEditor">{{ isEditorVisible ? 'Hide' : 'Show' }} Editor</button>
       <div class="editor-output-container">
-        <EditorSection />
-        <OutputSection />
+        <EditorSection v-if="isEditorVisible" />
+        <OutputSection :expand="!isEditorVisible" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useServiceStore } from '@/stores/serviceStore';
 import ServiceSelect from '@/components/ServiceSelect.vue';
 import LocalModelSelect from '@/components/LocalModelSelect.vue';
@@ -35,6 +37,12 @@ import OutputSection from '@/components/OutputSection.vue';
 
 // Using Pinia store to manage service selection state
 const serviceStore = useServiceStore();
+
+// State for toggling the editor
+const isEditorVisible = ref(true);
+const toggleEditor = () => {
+  isEditorVisible.value = !isEditorVisible.value;
+};
 </script>
 
 <style scoped>
@@ -68,5 +76,28 @@ const serviceStore = useServiceStore();
   display: flex;
   flex: 1;
   height: 100%;
+}
+
+.output-section {
+  flex: 1;
+}
+
+.output-section.expand {
+  flex: 2; /* Expands when editor is hidden */
+}
+
+button {
+  background-color: #3a3a52; /* Subtle color */
+  color: #f0f0f0;
+  border: none;
+  padding: 5px 10px; /* Smaller padding */
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px; /* Smaller font size */
+}
+
+button:hover {
+  background-color: #474766; /* Darker on hover */
 }
 </style>
