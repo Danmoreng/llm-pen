@@ -52,4 +52,21 @@ label {
 input, select {
   flex-grow: 1; /* Make the select elements take up the remaining space */
 }
+
+ul, ol {
+  padding-left: 2rem;
+}
+
+pre {
+  background: #2e2e2e;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 10px 0 20px 0;
+}
+
+code {
+  font-family: 'Courier New', Courier, monospace;
+  white-space: break-spaces;
+}
+
 </style>
