@@ -3,14 +3,19 @@
     <!-- Loop through the messages and render them based on their role -->
     <div v-for="(message, index) in chatMessages" :key="index" :class="messageClass(message)">
       <!-- User and assistant messages -->
-      <p v-if="message.role === 'user' || message.role === 'assistant'" v-html="formatMessage(message.content)"></p>
+      <p v-if="message.role === 'user' || message.role === 'assistant'" v-html="marked(message.content)"></p>
 
       <!-- Function call messages -->
       <div v-if="message.role === 'function'" class="function-call-block">
-        <strong @click="toggleExpand(index)" class="collapsible-header">
-          {{ message.name }} (Click to {{ expandedIndices.includes(index) ? 'Collapse' : 'Expand' }}):
-        </strong>
-        <pre v-if="expandedIndices.includes(index)" v-html="escapeHtml(message.content)"></pre>
+        <div class="function-call-header" @click="toggleExpand(index)">
+          <strong>{{ message.name }}</strong>
+          <span class="expand-toggle">
+            {{ expandedIndices.includes(index) ? '▲ Hide Details' : '▼ Show Details' }}
+          </span>
+        </div>
+        <template class="function-call-content" v-if="expandedIndices.includes(index)">
+          <span v-html="escapeHtml(message.content)"></span>
+        </template>
       </div>
 
       <!-- Error messages -->
@@ -29,6 +34,7 @@
 <script setup>
 import { ref, watch, nextTick } from 'vue';
 import { useServiceStore } from '@/stores/serviceStore';
+import { marked } from 'marked';
 
 // Access the chatMessages from the store
 const serviceStore = useServiceStore();
@@ -59,18 +65,8 @@ watch(chatMessages, async () => {
 
 // Escape HTML for function calls to prevent injection issues
 function escapeHtml(unsafeString = '') {
-  return unsafeString
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return marked("```json\n" + JSON.stringify(JSON.parse(unsafeString), null, 2));
 }
-
-// Format regular messages
-const formatMessage = (content) => {
-  return content; // For now, just return the content as it is
-};
 
 function messageClass(message) {
   if (message.role === 'user') return 'user-message';
@@ -81,26 +77,48 @@ function messageClass(message) {
 </script>
 
 <style scoped>
-/* Chat message styles */
-.user-message {
-  background-color: #1c4a77; /* Different background color for user */
+/* Function call block styles */
+.function-call-block {
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.function-call-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
   padding: 10px;
+  border-radius: 5px;
+  background-color: #561a59;
+  font-weight: bold;
+}
+
+/* Style for the expand/collapse toggle */
+.expand-toggle {
+  font-size: 0.9em;
+}
+
+/* Adjust other styles for better spacing and readability */
+.user-message {
+  background-color: #1c4a77;
+  padding: 12px;
   border-radius: 5px;
   margin: 10px 0 0 30px;
   color: #ecf0f1;
 }
 
 .assistant-message {
-  background-color: #153350; /* Different background color for assistant */
-  padding: 10px;
+  background-color: #153350;
+  padding: 12px;
   border-radius: 5px;
   margin: 10px 30px 0 0;
   color: #ecf0f1;
 }
 
-/* Error (system) message styles */
+/* Error message styles */
 .error-message {
-  background-color: #e74c3c; /* Red background for errors */
+  background-color: #e74c3c;
   padding: 10px;
   border-radius: 5px;
   margin: 10px 0;
@@ -108,34 +126,7 @@ function messageClass(message) {
   font-weight: bold;
 }
 
-/* Function call block style */
-.function-call-block {
-  background-color: #1b2631;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
-  font-family: 'Courier New', Courier, monospace;
-  color: #f1c40f;
-}
-
-.collapsible-header {
-  cursor: pointer;
-  text-decoration: underline;
-  display: block;
-  margin-bottom: 5px;
-}
-
-/* Preformatted function call content */
-.function-call-block pre {
-  background-color: #2c3e50;
-  padding: 10px;
-  border-radius: 5px;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-x: auto;
-}
-
-/* Make the chat container scrollable and take as much space as possible */
+/* Chat container adjustments */
 .chat-container {
   margin-top: 10px;
   padding-bottom: 10px;
