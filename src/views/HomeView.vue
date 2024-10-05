@@ -15,7 +15,10 @@
 
     <!-- Right Section (Editor and Output) -->
     <div class="right-section">
-      <button @click="toggleEditor">{{ isEditorVisible ? 'Hide' : 'Show' }} Editor</button>
+      <div class="controls">
+        <button @click="toggleEditor">{{ isEditorVisible ? 'Hide' : 'Show' }} Editor</button>
+        <button @click="serviceStore.resetChat">Reset Chat</button>
+      </div>
       <div class="editor-output-container">
         <EditorSection v-if="isEditorVisible" />
         <OutputSection :expand="!isEditorVisible" />
@@ -86,15 +89,21 @@ const toggleEditor = () => {
   flex: 2; /* Expands when editor is hidden */
 }
 
+.controls {
+  display: flex;
+  flex-direction: row;
+}
+
 button {
+  min-width: 150px;
   background-color: #3a3a52; /* Subtle color */
   color: #f0f0f0;
   border: none;
-  padding: 5px 10px; /* Smaller padding */
+  padding: 5px 10px;
   margin: 5px;
   cursor: pointer;
   border-radius: 3px;
-  font-size: 12px; /* Smaller font size */
+  font-size: 12px;
 }
 
 button:hover {

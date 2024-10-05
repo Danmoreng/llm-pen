@@ -37,6 +37,7 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 0 5px 5px 0;
 }
 
 .output-section h2 {
@@ -47,7 +48,7 @@ onMounted(() => {
 #codeOutput {
   flex-grow: 1;
   width: 100%;
-  border: 1px solid #4e4e5e;
+  border: none;
   border-radius: 5px;
   background-color: #131313;
   overflow-y: auto;
