@@ -12,6 +12,9 @@
         </strong>
         <pre v-if="expandedIndices.includes(index)" v-html="escapeHtml(getFunctionArgs(message.content))"></pre>
       </div>
+
+      <!-- Error messages -->
+      <p v-if="message.role === 'system'" class="error-message">{{ message.content }}</p>
     </div>
 
     <!-- Display loading dots if the LLM is processing -->
@@ -93,6 +96,7 @@ function messageClass(message) {
   if (message.role === 'user') return 'user-message';
   if (message.role === 'assistant') return 'assistant-message';
   if (message.role === 'function-call') return 'function-call-message';
+  if (message.role === 'system') return 'system-message'; // Add class for system messages
 }
 </script>
 
@@ -112,6 +116,16 @@ function messageClass(message) {
   border-radius: 5px;
   margin: 10px 30px 0 0;
   color: #ecf0f1;
+}
+
+/* Error (system) message styles */
+.error-message {
+  background-color: #e74c3c; /* Red background for errors */
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  color: white;
+  font-weight: bold;
 }
 
 /* Function call block style */
