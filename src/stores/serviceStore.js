@@ -12,6 +12,7 @@ export const useServiceStore = defineStore('serviceStore', {
     apiStatus: 'Please select a service',
     chatMessages: [],
     conversationHistory: [],
+    isLoading: false,
     tools: [ // Tools for Ollama and functions for OpenAI, we reuse the structure
       {
         type: 'function',
@@ -97,6 +98,8 @@ export const useServiceStore = defineStore('serviceStore', {
     },
 
     async sendChatMessage(userMessage) {
+      this.isLoading = true; // Set loading state to true before processing the request
+
       // Add the user's message to the conversation history
       this.conversationHistory.push({ role: 'user', content: userMessage });
       this.addMessage({ role: 'user', content: userMessage });
@@ -148,6 +151,8 @@ export const useServiceStore = defineStore('serviceStore', {
       } catch (error) {
         this.apiStatus = `Error: ${error.message}`;
         this.addMessage({ role: 'system', content: `Error: ${error.message}` });
+      } finally {
+        this.isLoading = false; // Set loading state to false when the request is done
       }
     },
 

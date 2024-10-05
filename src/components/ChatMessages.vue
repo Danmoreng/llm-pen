@@ -1,5 +1,5 @@
 <template>
-  <div id="chatMessages" class="chat-container">
+  <div id="chatMessages" ref="chatContainer" class="chat-container">
     <!-- Loop through the messages and render them based on their role -->
     <div v-for="(message, index) in chatMessages" :key="index" :class="messageClass(message)">
       <!-- User and assistant messages -->
@@ -13,16 +13,26 @@
         <pre v-if="expandedIndices.includes(index)" v-html="escapeHtml(getFunctionArgs(message.content))"></pre>
       </div>
     </div>
+
+    <!-- Display loading dots if the LLM is processing -->
+    <div v-if="serviceStore.isLoading" class="loading-dots">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { useServiceStore } from '@/stores/serviceStore';
 
 // Access the chatMessages from the store
 const serviceStore = useServiceStore();
 const chatMessages = serviceStore.chatMessages;
+
+// Reference for the chat container (to control scroll)
+const chatContainer = ref(null);
 
 // Tracks which function call messages are expanded
 const expandedIndices = ref([]);
@@ -35,6 +45,14 @@ const toggleExpand = (index) => {
     expandedIndices.value.push(index); // Expand
   }
 };
+
+// Watch for changes in chat messages and scroll to the bottom when a new message is added
+watch(chatMessages, async () => {
+  // Wait for the DOM to finish updating
+  await nextTick();
+  // Scroll the chat container to the bottom
+  chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+});
 
 // Function to extract the function name from the message content
 const getFunctionName = (content) => {
@@ -81,18 +99,18 @@ function messageClass(message) {
 <style scoped>
 /* Chat message styles */
 .user-message {
-  background-color: #34495e;
+  background-color: #1c4a77; /* Different background color for user */
   padding: 10px;
   border-radius: 5px;
-  margin: 10px 0;
+  margin: 10px 0 0 30px;
   color: #ecf0f1;
 }
 
 .assistant-message {
-  background-color: #2c3e50;
+  background-color: #153350; /* Different background color for assistant */
   padding: 10px;
   border-radius: 5px;
-  margin: 10px 0;
+  margin: 10px 30px 0 0;
   color: #ecf0f1;
 }
 
@@ -125,7 +143,41 @@ function messageClass(message) {
 
 /* Make the chat container scrollable and take as much space as possible */
 .chat-container {
+  margin-top: 10px;
   flex-grow: 1;
   overflow-y: auto; /* Allow scrolling when content overflows */
+}
+
+/* Loading dots styles */
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  margin: 0 5px;
+  background-color: #cccccc;
+  border-radius: 50%;
+  animation: bounce 1s infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 </style>
