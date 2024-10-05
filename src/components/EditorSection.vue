@@ -1,18 +1,18 @@
 <template>
   <div class="editor-section">
     <div class="editor">
-      <h2>HTML Editor</h2>
-      <textarea v-model="editorStore.htmlContent" rows="10"></textarea>
+      <h2>HTML</h2>
+      <textarea v-model="editorStore.htmlContent"></textarea>
     </div>
 
     <div class="editor">
-      <h2>CSS Editor</h2>
-      <textarea v-model="editorStore.cssContent" rows="10"></textarea>
+      <h2>CSS</h2>
+      <textarea v-model="editorStore.cssContent"></textarea>
     </div>
 
     <div class="editor">
-      <h2>JavaScript Editor</h2>
-      <textarea v-model="editorStore.jsContent" rows="10"></textarea>
+      <h2>JavaScript</h2>
+      <textarea v-model="editorStore.jsContent"></textarea>
     </div>
   </div>
 </template>
@@ -25,24 +25,37 @@ const editorStore = useEditorStore();
 
 <style scoped>
 .editor-section {
-  flex: 1;
-  margin-right: 10px;
   display: flex;
   flex-direction: column;
-  color: #f8f8f2;
+  flex: 1;
+  height: 100%;
 }
 
 .editor {
+  position: relative;
   flex: 1;
-  margin-bottom: 20px;
+  margin: 0 5px 5px 5px;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor h2 {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 12px;
   color: #f8f8f2;
-  margin-bottom: 10px;
+  margin: 0;
+  background-color: rgb(30, 30, 47);
+  padding: 2px 6px;
+  border-radius: 4px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 textarea {
+  flex-grow: 1;
   width: 100%;
   padding: 10px;
   background-color: #1e1e2f;
@@ -51,6 +64,7 @@ textarea {
   font-size: 14px;
   color: #f8f8f2;
   border-radius: 4px;
-  height: 200px;
+  resize: none;
+  min-height: 0;
 }
 </style>

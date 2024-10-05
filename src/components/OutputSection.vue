@@ -1,6 +1,5 @@
 <template>
   <div class="output-section">
-    <h2>Live Preview</h2>
     <iframe id="codeOutput" sandbox="allow-scripts"></iframe>
   </div>
 </template>
@@ -50,7 +49,7 @@ onMounted(() => {
   width: 100%;
   border: 1px solid #4e4e5e;
   border-radius: 5px;
-  background-color: #1e1e2f;
+  background-color: #131313;
   overflow-y: auto;
 }
 </style>

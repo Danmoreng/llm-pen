@@ -4,7 +4,16 @@ export const useEditorStore = defineStore('editorStore', {
     // Define state for HTML, CSS, and JavaScript content
     state: () => ({
         htmlContent: '<h1>Hello, World!</h1>', // HTML content inside the body
-        cssContent: '', // CSS content
+        cssContent: `body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Segoe UI", sans-serif;
+  color: #fff;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}`, // CSS content
         jsContent: '',  // JavaScript content
     }),
 
