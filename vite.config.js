@@ -7,5 +7,8 @@ export default {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
+    },
+    build: {
+        outDir: "./docs",
     }
 }
