@@ -1,174 +1,149 @@
 import { defineStore } from 'pinia';
 import { sendChatToOpenAI } from '@/api/openai';
 import { sendChatToOllama } from '@/api/ollama';
-import { useEditorStore } from '@/stores/editorStore'; // Import the editor store
-import { systemPrompt } from '@/constants/systemPrompt'; // Import the system prompt
+import { useEditorStore } from '@/stores/editorStore';
+import { systemPrompt } from '@/constants/systemPrompt';
+import { tools } from '@/constants/tools';  // Tools are now imported from a separate file
+
+// Constants for API status
+const API_STATUS = {
+  DEFAULT: 'Please select a service',
+  LOADING: 'Loading...',
+  ERROR: 'Error',
+};
 
 export const useServiceStore = defineStore('serviceStore', {
   state: () => ({
     selectedService: '',
     apiKey: '',
     selectedModel: '',
-    apiStatus: 'Please select a service',
+    apiStatus: API_STATUS.DEFAULT,
     chatMessages: [],
-    conversationHistory: [],
     isLoading: false, // Loading state
     errorMessage: null, // Add an error message state
-    tools: [ // Tools for Ollama and functions for OpenAI, we reuse the structure
-      {
-        type: 'function',
-        function: {
-          name: "replaceCode",
-          description: "Replaces the entire code in the editor with new code.",
-          parameters: {
-            type: "object",
-            properties: {
-              newCode: {
-                type: "string",
-                description: "The full new code to replace the current code with."
-              }
-            },
-            required: ["newCode"]
-          }
-        }
-      },
-      {
-        type: 'function',
-        function: {
-          name: "updateCodePart",
-          description: "Updates specific parts of the code by replacing a target string with new content.",
-          parameters: {
-            type: "object",
-            properties: {
-              target: {
-                type: "string",
-                description: "The target string in the current code to be replaced."
-              },
-              newContent: {
-                type: "string",
-                description: "The new content that will replace the target string."
-              }
-            },
-            required: ["target", "newContent"]
-          }
-        }
-      },
-      {
-        type: 'function',
-        function: {
-          name: "addNewCode",
-          description: "Appends new code to the current code.",
-          parameters: {
-            type: "object",
-            properties: {
-              newCode: {
-                type: "string",
-                description: "The code to append to the current code."
-              }
-            },
-            required: ["newCode"]
-          }
-        }
-      }
-    ],
+    tools: tools
   }),
 
   getters: {
-    chatEnabled: (state) => {
-      return state.selectedService !== '' && state.selectedModel !== '';
-    },
+    chatEnabled: (state) => state.selectedService !== '' && state.selectedModel !== '',
+    isApiLoading: (state) => state.isLoading || state.apiStatus === API_STATUS.LOADING,
   },
 
   actions: {
-    addMessage(message) {
-      this.chatMessages.push(message);
-    },
-
-    // Add function call to both chatMessages and conversation history
     addFunctionCallToHistory(functionName, functionArgs) {
-      const functionCallMessage = {
+      this.chatMessages.push({
+        role: 'function',
         name: functionName,
-        arguments: functionArgs,
-      };
-
-      // Add to conversation history for future context
-      this.conversationHistory.push({ role: 'function', name: functionName, content: JSON.stringify(functionCallMessage.arguments) });
-
-      // Add to chatMessages for display, but display as 'function-call'
-      this.addMessage({ role: 'function-call', content: JSON.stringify(functionCallMessage) });
+        content: JSON.stringify(functionArgs || {}), // Ensure empty object if undefined
+      });
     },
 
     async sendChatMessage(userMessage) {
-      this.isLoading = true; // Set loading state to true before processing the request
-      this.errorMessage = null; // Clear previous errors
+      this.isLoading = true;
+      this.errorMessage = null;
 
-      // Add the user's message to the conversation history
-      this.conversationHistory.push({ role: 'user', content: userMessage });
       this.chatMessages.push({ role: 'user', content: userMessage });
 
       try {
-        let result;
-
-        if (this.selectedService === 'local') {
-          // Call Ollama API
-          const ollamaResponse = await sendChatToOllama(this.selectedModel, this.conversationHistory, systemPrompt, this.tools); // Use tools for Ollama
-          result = ollamaResponse.choice; // First choice
-          const toolCalls = ollamaResponse.tool_calls; // Tool calls
-
-          // Handle tool calls if any
-          if (toolCalls && toolCalls.length > 0) {
-            for (const toolCall of toolCalls) {
-              const functionName = toolCall.function.name;
-              const functionArgs = JSON.parse(toolCall.function.arguments); // Parse the stringified arguments
-              // Log tool call in history and chat
-              this.addFunctionCallToHistory(functionName, functionArgs);
-              // Handle the function call
-              this.handleFunctionCall(functionName, functionArgs);
-            }
-          }
-        } else if (this.selectedService === 'openai') {
-          // Call OpenAI API with functions
-          const openaiFunctions = this.tools.map((tool) => tool.function); // Map tools to functions for OpenAI
-          result = await sendChatToOpenAI(this.apiKey, this.selectedModel, this.conversationHistory, systemPrompt, openaiFunctions); // Use functions for OpenAI
-        }
+        const result = this.selectedService === 'local'
+          ? await this.handleOllamaRequest()
+          : await this.handleOpenAIRequest();
 
         if (result) {
-          // Always handle the assistant's response (even if a function call occurs)
-          if (result.message && result.message.content) {
-            this.conversationHistory.push({ role: 'assistant', content: result.message.content });
-            this.addMessage({ role: 'assistant', content: result.message.content });
-          }
-
-          // Handle function call if present
-          if (result.finish_reason === 'function_call') {
-            const functionCall = result.message.function_call;
-            const functionName = functionCall.name;
-            const functionArgs = JSON.parse(functionCall.arguments); // Parse the arguments
-            // Log function call in history and chat
-            this.addFunctionCallToHistory(functionName, functionArgs);
-            // Handle the function call
-            this.handleFunctionCall(functionName, functionArgs);
-          }
+          this.handleAssistantResponse(result);
         }
       } catch (error) {
-        // Set the error message if API call fails
-        this.errorMessage = `Error: ${error.message}`;
-        this.chatMessages.push({ role: 'system', content: `Error: ${error.message}` }); // Add error to chat messages
+        this.handleError(error);
       } finally {
-        this.isLoading = false; // Set loading state to false when the request is done
+        this.isLoading = false;
       }
     },
 
-    handleFunctionCall(functionName, functionArgs) {
-      const editorStore = useEditorStore(); // Access the editor store
+    async handleOllamaRequest() {
+      try {
+        const ollamaResponse = await sendChatToOllama(
+          this.selectedModel,
+          this.chatMessages,
+          systemPrompt,
+          this.tools
+        );
 
-      if (functionName === 'replaceCode') {
-        editorStore.replaceCode(functionArgs.newCode);  // Call replaceCode from editor store
-      } else if (functionName === 'updateCodePart') {
-        editorStore.updateCodePart(functionArgs.target, functionArgs.newContent);  // Call updateCodePart from editor store
-      } else if (functionName === 'addNewCode') {
-        editorStore.addNewCode(functionArgs.newCode);  // Call addNewCode from editor store
+        const { choice, tool_calls: toolCalls } = ollamaResponse;
+
+        if (toolCalls?.length) {
+          toolCalls.forEach(({ function: { name, arguments: functionArgs } }) => {
+            if (functionArgs) {
+              const parsedArgs = JSON.parse(functionArgs);
+              this.addFunctionCallToHistory(name, parsedArgs);
+              this.handleFunctionCall(name, parsedArgs);
+            } else {
+              console.error(`No function arguments provided for function: ${name}`);
+            }
+          });
+        }
+
+        return choice;
+      } catch (error) {
+        this.handleError(error);
       }
-    }
-  }
+    },
+
+    async handleOpenAIRequest() {
+      try {
+        const openaiFunctions = this.tools.map(tool => tool.function);
+        return await sendChatToOpenAI(
+          this.apiKey,
+          this.selectedModel,
+          this.chatMessages,
+          systemPrompt,
+          openaiFunctions
+        );
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+
+    handleAssistantResponse(result) {
+      if (result.message?.content) {
+        this.chatMessages.push({ role: 'assistant', content: result.message.content });
+      }
+
+      if (result.finish_reason === 'function_call') {
+        const { name, arguments: functionArgs } = result.message.function_call;
+
+        if (name && functionArgs) {
+          try {
+            const parsedArgs = JSON.parse(functionArgs);
+            this.addFunctionCallToHistory(name, parsedArgs);
+            this.handleFunctionCall(name, parsedArgs);
+          } catch (error) {
+            console.error("Failed to parse function arguments:", error);
+          }
+        } else {
+          console.error("Function call is missing name or arguments.");
+        }
+      }
+    },
+
+    handleError(error) {
+      const errorSource = this.selectedService === 'local' ? 'Ollama' : 'OpenAI';
+      this.errorMessage = `${errorSource} Error: ${error.message}`;
+      this.chatMessages.push({ role: 'system', content: `${errorSource} Error: ${error.message}` });
+    },
+
+    handleFunctionCall(functionName, functionArgs) {
+      const editorStore = useEditorStore();
+      const functionMap = {
+        replaceCode: () => editorStore.replaceCode(functionArgs.newCode),
+        updateCodePart: () => editorStore.updateCodePart(functionArgs.target, functionArgs.newContent),
+        addNewCode: () => editorStore.addNewCode(functionArgs.newCode),
+      };
+
+      if (functionMap[functionName]) {
+        functionMap[functionName]();
+      } else {
+        console.error(`Unknown function: ${functionName}`);
+      }
+    },
+  },
 });
