@@ -138,6 +138,7 @@ function messageClass(message) {
 /* Make the chat container scrollable and take as much space as possible */
 .chat-container {
   margin-top: 10px;
+  padding-bottom: 10px;
   flex-grow: 1;
   overflow-y: auto; /* Allow scrolling when content overflows */
 }
