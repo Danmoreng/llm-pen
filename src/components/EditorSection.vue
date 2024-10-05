@@ -2,65 +2,25 @@
   <div class="editor-section">
     <div class="editor">
       <h2>HTML</h2>
-      <div class="monaco-container" ref="htmlEditor"></div>
+      <textarea v-model="editorStore.htmlContent"></textarea>
     </div>
 
     <div class="editor">
       <h2>CSS</h2>
-      <div class="monaco-container" ref="cssEditor"></div>
+      <textarea v-model="editorStore.cssContent"></textarea>
     </div>
 
     <div class="editor">
       <h2>JavaScript</h2>
-      <div class="monaco-container" ref="jsEditor"></div>
+      <textarea v-model="editorStore.jsContent"></textarea>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import * as monaco from 'monaco-editor';
 import { useEditorStore } from '@/stores/editorStore';
 
 const editorStore = useEditorStore();
-
-// Refs for Monaco editor containers
-const htmlEditor = ref(null);
-const cssEditor = ref(null);
-const jsEditor = ref(null);
-
-onMounted(() => {
-  // Create Monaco Editor instances and sync with editorStore
-  monaco.editor.create(htmlEditor.value, {
-    value: editorStore.htmlContent,
-    language: 'html',
-    theme: 'vs-dark',
-    automaticLayout: true,
-  }).onDidChangeModelContent(() => {
-    // Update store when content changes
-    editorStore.htmlContent = htmlEditor.value.getModel().getValue();
-  });
-
-  monaco.editor.create(cssEditor.value, {
-    value: editorStore.cssContent,
-    language: 'css',
-    theme: 'vs-dark',
-    automaticLayout: true,
-  }).onDidChangeModelContent(() => {
-    // Update store when content changes
-    editorStore.cssContent = cssEditor.value.getModel().getValue();
-  });
-
-  monaco.editor.create(jsEditor.value, {
-    value: editorStore.jsContent,
-    language: 'javascript',
-    theme: 'vs-dark',
-    automaticLayout: true,
-  }).onDidChangeModelContent(() => {
-    // Update store when content changes
-    editorStore.jsContent = jsEditor.value.getModel().getValue();
-  });
-});
 </script>
 
 <style scoped>
@@ -94,13 +54,17 @@ onMounted(() => {
   opacity: 0.5;
 }
 
-/* Monaco editor container styling */
-.monaco-container {
+textarea {
   flex-grow: 1;
   width: 100%;
-  height: 100%; /* Make sure the editor takes the full space */
+  padding: 10px;
   background-color: #1e1e2f;
+  border: none;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: #f8f8f2;
   border-radius: 4px;
   resize: none;
+  min-height: 0;
 }
 </style>
