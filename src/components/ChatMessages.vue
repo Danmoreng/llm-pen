@@ -6,11 +6,11 @@
       <p v-if="message.role === 'user' || message.role === 'assistant'" v-html="formatMessage(message.content)"></p>
 
       <!-- Function call messages -->
-      <div v-if="message.role === 'function-call'" class="function-call-block">
+      <div v-if="message.role === 'function'" class="function-call-block">
         <strong @click="toggleExpand(index)" class="collapsible-header">
-          {{ getFunctionName(message.content) }} (Click to {{ expandedIndices.includes(index) ? 'Collapse' : 'Expand' }}):
+          {{ message.name }} (Click to {{ expandedIndices.includes(index) ? 'Collapse' : 'Expand' }}):
         </strong>
-        <pre v-if="expandedIndices.includes(index)" v-html="escapeHtml(getFunctionArgs(message.content))"></pre>
+        <pre v-if="expandedIndices.includes(index)" v-html="escapeHtml(message.content)"></pre>
       </div>
 
       <!-- Error messages -->
@@ -57,28 +57,8 @@ watch(chatMessages, async () => {
   chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
 });
 
-// Function to extract the function name from the message content
-const getFunctionName = (content) => {
-  try {
-    const parsedContent = JSON.parse(content);
-    return parsedContent.name || 'Function Call';
-  } catch {
-    return 'Function Call';
-  }
-};
-
-// Function to extract and format the function arguments as JSON
-const getFunctionArgs = (content) => {
-  try {
-    const parsedContent = JSON.parse(content);
-    return JSON.stringify(parsedContent.arguments, null, 2); // Pretty-print JSON arguments
-  } catch {
-    return content;
-  }
-};
-
 // Escape HTML for function calls to prevent injection issues
-function escapeHtml(unsafeString) {
+function escapeHtml(unsafeString = '') {
   return unsafeString
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -95,7 +75,7 @@ const formatMessage = (content) => {
 function messageClass(message) {
   if (message.role === 'user') return 'user-message';
   if (message.role === 'assistant') return 'assistant-message';
-  if (message.role === 'function-call') return 'function-call-message';
+  if (message.role === 'function') return 'function-call-message';
   if (message.role === 'system') return 'system-message'; // Add class for system messages
 }
 </script>
