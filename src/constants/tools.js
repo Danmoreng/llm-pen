@@ -1,18 +1,22 @@
-export const tools = [ // Tools for Ollama and functions for OpenAI, we reuse the structure
+export const tools = [
     {
         type: 'function',
         function: {
             name: "replaceCode",
-            description: "Replaces the entire code in the editor with new code.",
+            description: "Replaces the entire content of the specified section (HTML, CSS, or JavaScript).",
             parameters: {
                 type: "object",
                 properties: {
+                    section: {
+                        type: "string",
+                        description: "The section to replace ('html', 'css', or 'js')."
+                    },
                     newCode: {
                         type: "string",
-                        description: "The full new code to replace the current code with."
+                        description: "The new content to replace the current content in the section."
                     }
                 },
-                required: ["newCode"]
+                required: ["section", "newCode"]
             }
         }
     },
@@ -20,37 +24,24 @@ export const tools = [ // Tools for Ollama and functions for OpenAI, we reuse th
         type: 'function',
         function: {
             name: "updateCodePart",
-            description: "Updates specific parts of the code by replacing a target string with new content.",
+            description: "Updates a specific part of a section (HTML, CSS, or JavaScript) by finding and replacing a target string.",
             parameters: {
                 type: "object",
                 properties: {
+                    section: {
+                        type: "string",
+                        description: "The section to update ('html', 'css', or 'js')."
+                    },
                     target: {
                         type: "string",
-                        description: "The target string in the current code to be replaced."
+                        description: "The target string to find and replace within the section."
                     },
                     newContent: {
                         type: "string",
                         description: "The new content that will replace the target string."
                     }
                 },
-                required: ["target", "newContent"]
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: "addNewCode",
-            description: "Appends new code to the current code.",
-            parameters: {
-                type: "object",
-                properties: {
-                    newCode: {
-                        type: "string",
-                        description: "The code to append to the current code."
-                    }
-                },
-                required: ["newCode"]
+                required: ["section", "target", "newContent"]
             }
         }
     }

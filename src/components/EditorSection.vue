@@ -1,8 +1,19 @@
 <template>
   <div class="editor-section">
-    <h2>Code Editor</h2>
-    <!-- Simple textarea for editing code -->
-    <textarea v-model="editorStore.codeContent" id="codeEditor" rows="10"></textarea>
+    <div class="editor">
+      <h2>HTML Editor</h2>
+      <textarea v-model="editorStore.htmlContent" rows="10"></textarea>
+    </div>
+
+    <div class="editor">
+      <h2>CSS Editor</h2>
+      <textarea v-model="editorStore.cssContent" rows="10"></textarea>
+    </div>
+
+    <div class="editor">
+      <h2>JavaScript Editor</h2>
+      <textarea v-model="editorStore.jsContent" rows="10"></textarea>
+    </div>
   </div>
 </template>
 
@@ -21,14 +32,17 @@ const editorStore = useEditorStore();
   color: #f8f8f2;
 }
 
-.editor-section h2 {
-  color: #f8f8f2;
-  margin-bottom: 10px;
-  margin-left: 10px;
+.editor {
+  flex: 1;
+  margin-bottom: 20px;
 }
 
-#codeEditor {
-  flex-grow: 1;
+.editor h2 {
+  color: #f8f8f2;
+  margin-bottom: 10px;
+}
+
+textarea {
   width: 100%;
   padding: 10px;
   background-color: #1e1e2f;
@@ -37,5 +51,6 @@ const editorStore = useEditorStore();
   font-size: 14px;
   color: #f8f8f2;
   border-radius: 4px;
+  height: 200px;
 }
 </style>

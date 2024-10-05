@@ -11,22 +11,25 @@ import { useEditorStore } from '@/stores/editorStore';
 
 const editorStore = useEditorStore();
 
-// Update the iframe whenever the code content changes
-const updateIframe = (code) => {
+// Function to update the iframe with the merged code from the store
+const updateIframe = () => {
   const iframe = document.getElementById('codeOutput');
   if (iframe) {
-    iframe.srcdoc = code;
+    iframe.srcdoc = editorStore.getMergedCode(); // Using the store's function directly
   }
 };
 
-// Watch for changes in the editor content and update iframe
-watch(() => editorStore.codeContent, (newCode) => {
-  updateIframe(newCode);
-});
+// Watch for changes in HTML, CSS, and JS and update the iframe
+watch(
+  () => [editorStore.htmlContent, editorStore.cssContent, editorStore.jsContent],
+  () => {
+    updateIframe();
+  }
+);
 
 // Initially load the iframe content on mount
 onMounted(() => {
-  updateIframe(editorStore.codeContent);
+  updateIframe();
 });
 </script>
 

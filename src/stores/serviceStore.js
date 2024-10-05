@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { sendChatToOpenAI } from '@/api/openai';
 import { sendChatToOllama } from '@/api/ollama';
 import { useEditorStore } from '@/stores/editorStore';
-import { systemPrompt } from '@/constants/systemPrompt';
+import { generateSystemPrompt } from '@/constants/systemPrompt';
 import { tools } from '@/constants/tools';  // Tools are now imported from a separate file
 
 // Constants for API status
@@ -60,11 +60,18 @@ export const useServiceStore = defineStore('serviceStore', {
     },
 
     async handleOllamaRequest() {
+      const editorStore = useEditorStore();
+      const currentSystemPrompt = generateSystemPrompt(
+        editorStore.htmlContent,
+        editorStore.cssContent,
+        editorStore.jsContent
+      );
+
       try {
         const ollamaResponse = await sendChatToOllama(
           this.selectedModel,
           this.chatMessages,
-          systemPrompt,
+          currentSystemPrompt, // Updated system prompt with the current code
           this.tools
         );
 
@@ -89,13 +96,20 @@ export const useServiceStore = defineStore('serviceStore', {
     },
 
     async handleOpenAIRequest() {
+      const editorStore = useEditorStore();
+      const currentSystemPrompt = generateSystemPrompt(
+        editorStore.htmlContent,
+        editorStore.cssContent,
+        editorStore.jsContent
+      );
+
       try {
         const openaiFunctions = this.tools.map(tool => tool.function);
         return await sendChatToOpenAI(
           this.apiKey,
           this.selectedModel,
           this.chatMessages,
-          systemPrompt,
+          currentSystemPrompt, // Updated system prompt with the current code
           openaiFunctions
         );
       } catch (error) {
@@ -133,10 +147,26 @@ export const useServiceStore = defineStore('serviceStore', {
 
     handleFunctionCall(functionName, functionArgs) {
       const editorStore = useEditorStore();
+
       const functionMap = {
-        replaceCode: () => editorStore.replaceCode(functionArgs.newCode),
-        updateCodePart: () => editorStore.updateCodePart(functionArgs.target, functionArgs.newContent),
-        addNewCode: () => editorStore.addNewCode(functionArgs.newCode),
+        // Handle replacing the entire section (HTML, CSS, or JS)
+        replaceCode: () => {
+          const { section, newCode } = functionArgs;
+          if (section && newCode) {
+            editorStore.replaceCode(section, newCode);
+          } else {
+            console.error("Missing section or newCode in replaceCode function call.");
+          }
+        },
+        // Handle updating a specific part of a section
+        updateCodePart: () => {
+          const { section, target, newContent } = functionArgs;
+          if (section && target && newContent) {
+            editorStore.updateCodePart(section, target, newContent);
+          } else {
+            console.error("Missing section, target, or newContent in updateCodePart function call.");
+          }
+        }
       };
 
       if (functionMap[functionName]) {
@@ -144,6 +174,6 @@ export const useServiceStore = defineStore('serviceStore', {
       } else {
         console.error(`Unknown function: ${functionName}`);
       }
-    },
+    }
   },
 });

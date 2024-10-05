@@ -1,33 +1,77 @@
 import { defineStore } from 'pinia';
 
 export const useEditorStore = defineStore('editorStore', {
-    // Define state
+    // Define state for HTML, CSS, and JavaScript content
     state: () => ({
-        codeContent: '<!DOCTYPE html>\n<html>\n  <body>\n    <h1>Hello, World!</h1>\n  </body>\n</html>',
+        htmlContent: '<h1>Hello, World!</h1>', // HTML content inside the body
+        cssContent: '', // CSS content
+        jsContent: '',  // JavaScript content
     }),
-
-    // Define getters (if needed, but not essential for now)
-    getters: {
-        getCodeContent: (state) => state.codeContent,
-    },
 
     // Define actions
     actions: {
-        // Replace the entire code content in the editor
-        replaceCode(newCode) {
-            this.codeContent = newCode;
+        // Replace the entire content of one section (HTML, CSS, or JS)
+        replaceCode(section, newCode) {
+            if (section === 'html') {
+                this.htmlContent = newCode;
+            } else if (section === 'css') {
+                this.cssContent = newCode;
+            } else if (section === 'js') {
+                this.jsContent = newCode;
+            }
         },
 
-        // Update a specific part of the code by finding a target string and replacing it
-        updateCodePart(target, newContent) {
-            const currentCode = this.codeContent;
-            const updatedCode = currentCode.replace(target, newContent); // Simple string replace
-            this.codeContent = updatedCode;
+        // Update a specific part of a section by finding and replacing a target string
+        updateCodePart(section, target, newContent) {
+            console.log('Updating code part...');
+            console.log('Section:', section);
+            console.log('Target:', target);
+            console.log('New content:', newContent);
+
+            let currentContent = '';
+
+            if (section === 'html') {
+                currentContent = this.htmlContent;
+            } else if (section === 'css') {
+                currentContent = this.cssContent;
+            } else if (section === 'js') {
+                currentContent = this.jsContent;
+            }
+
+            console.log('Current Content Before Update:', currentContent);
+
+            const targetRegex = new RegExp(target.replace(/\s+/g, '\\s*'), 'g');
+            const updatedContent = currentContent.replace(targetRegex, newContent);
+
+            console.log('Updated Content:', updatedContent);
+
+            if (section === 'html') {
+                this.htmlContent = updatedContent;
+            } else if (section === 'css') {
+                this.cssContent = updatedContent;
+            } else if (section === 'js') {
+                this.jsContent = updatedContent;
+            }
         },
 
-        // Append new code to the existing code content
-        addNewCode(newCode) {
-            this.codeContent += `\n${newCode}`;
-        },
+        // Get the full merged code for rendering in iframe
+        getMergedCode() {
+            return `
+                <!DOCTYPE html>
+                <html>
+                  <head>
+                    <style>
+                      ${this.cssContent}
+                    </style>
+                  </head>
+                  <body>
+                    ${this.htmlContent}
+                    <script>
+                      ${this.jsContent}
+                    </script>
+                  </body>
+                </html>
+            `;
+        }
     },
 });
