@@ -1,6 +1,6 @@
 // api/ollama.js
 
-export const sendChatToOllama = async (selectedModel, conversationHistory, systemPrompt, functions) => {
+export const sendChatToOllama = async (selectedModel, conversationHistory, systemPrompt, tools) => {
     try {
         const response = await fetch('http://localhost:11434/v1/chat/completions', {
             method: 'POST',
@@ -14,8 +14,8 @@ export const sendChatToOllama = async (selectedModel, conversationHistory, syste
                     ...conversationHistory
                 ],
                 temperature: 0.3,
-                functions: functions,
-                function_call: 'auto'
+                tools: tools, // Use 'tools' instead of 'functions' for Ollama
+                tool_call: 'auto'  // Automatically call tools when needed
             })
         });
 
@@ -25,7 +25,13 @@ export const sendChatToOllama = async (selectedModel, conversationHistory, syste
             throw new Error(data.error?.message || 'An error occurred while communicating with Ollama.');
         }
 
-        return data.choices[0];  // Return the first choice from Ollama response
+        console.log(data);
+
+        // Return the first choice and the tool_calls field (if any)
+        return {
+            choice: data.choices[0],
+            tool_calls: data.choices[0].message?.tool_calls || []  // Return tool calls for processing
+        };
     } catch (error) {
         console.error('Ollama request failed:', error.message);
         throw error;

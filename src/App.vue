@@ -30,4 +30,26 @@ body {
   background-color: #1e1e2f;
   overflow: hidden; /* Prevent body from scrolling */
 }
+
+.form-container {
+  display: flex;
+  flex-direction: column; /* Stack form groups vertically */
+  gap: 10px; /* Add space between each form group */
+}
+
+.form-group {
+  display: flex;
+  align-items: center; /* Align label and select vertically in the center */
+  gap: 10px; /* Add space between label and select */
+  width: 100%; /* Ensure form-group takes full width */
+}
+
+label {
+  flex-basis: 150px; /* Set a fixed width for labels to align them */
+  flex-shrink: 0; /* Prevent labels from shrinking */
+}
+
+input, select {
+  flex-grow: 1; /* Make the select elements take up the remaining space */
+}
 </style>
