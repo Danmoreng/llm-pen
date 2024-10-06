@@ -18,6 +18,11 @@
       <div class="controls">
         <button @click="toggleEditor">{{ isEditorVisible ? 'Hide' : 'Show' }} Editor</button>
         <button @click="serviceStore.resetChat">Reset Chat</button>
+
+        <!-- GitHub Repository Link with SVG Icon -->
+        <a class="github-link" href="https://github.com/danmoreng/llm-pen" target="_blank" aria-label="GitHub" title="GitHub Repository">
+          <img src="@/assets/github-mark.svg" alt="GitHub Icon" />
+        </a>
       </div>
       <div class="editor-output-container">
         <EditorSection v-if="isEditorVisible" />
@@ -92,6 +97,8 @@ const toggleEditor = () => {
 .controls {
   display: flex;
   flex-direction: row;
+  align-items: center; /* Vertically align items */
+  justify-content: space-between; /* Spread out the controls */
 }
 
 button {
@@ -108,5 +115,26 @@ button {
 
 button:hover {
   background-color: #474766; /* Darker on hover */
+}
+
+/* GitHub link styles */
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto; /* Push to the far right */
+  text-decoration: none;
+  margin-right: 10px;
+}
+
+.github-link img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  filter: invert(100%);
+}
+
+.github-link img:hover {
+  filter: invert(70%);
 }
 </style>
