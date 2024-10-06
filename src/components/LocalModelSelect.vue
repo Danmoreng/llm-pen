@@ -25,7 +25,7 @@ async function fetchModels() {
     const data = await response.json();
     models.value = data.models;
   } catch (error) {
-    console.error("Error fetching models:", error);
+    serviceStore.handleError(error);
   }
 }
 
