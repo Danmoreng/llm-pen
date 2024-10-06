@@ -19,14 +19,14 @@ ${jsContent}
 
 You have access to the following functions:
 
-- replaceCode(section: string, newCode: string): Replaces the entire content of the specified section (HTML, CSS, or JavaScript).
-- updateCodePart(section: string, target: string, newContent: string): Finds the specified target string in the section and replaces it with the provided newContent.
+- \`replaceCode(section: string, newCode: string)\`: Replaces the entire content of the specified section (HTML, CSS, or JavaScript).
+- \`updateCodePart(section: string, target: string, newContent: string)\`: Finds the specified target string in the section and replaces it with the provided \`newContent\`. This function should be used for partial updates and targeted modifications.
 
-When deciding to modify the code, you should call one of these functions with the appropriate arguments in JSON format. If no function is needed, respond with suggestions or explanations.
-
-Always ensure the changes you make are consistent with the user’s request and do not introduce errors. If the user asks for clarification or feedback, provide detailed, step-by-step guidance.
+### Example of Function Call Usage:
+- If the user requests to change a specific part of the CSS, use \`updateCodePart('css', 'oldStyle', 'newStyle')\` to modify only that part of the CSS.
+- If the user asks to replace all the JavaScript content, use \`replaceCode('js', 'newJavaScriptCode')\`.
 
 Remember:
 1. \`replaceCode\` is for replacing the entire section (HTML, CSS, or JS).
-2. \`updateCodePart\` is for modifying specific parts of a section.
+2. \`updateCodePart\` is for modifying specific parts of a section, and careful attention must be paid to matching the correct target string.
 `;

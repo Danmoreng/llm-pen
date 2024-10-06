@@ -13,9 +13,14 @@
             {{ expandedIndices.includes(index) ? '▲ Hide Details' : '▼ Show Details' }}
           </span>
         </div>
-        <template class="function-call-content" v-if="expandedIndices.includes(index)">
+        <!-- Expanded content -->
+        <div class="function-call-content" v-if="expandedIndices.includes(index)">
+          <!-- Display function arguments -->
           <span v-html="escapeHtml(message.content)"></span>
-        </template>
+          <div v-if="message.result" :class="'function-call-result ' + message.result">
+            <span>{{ message.log }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Error messages -->
@@ -80,6 +85,20 @@ function messageClass(message) {
 .function-call-block {
   border-radius: 5px;
   margin: 10px 0;
+}
+
+.function-call-result {
+  border-radius: 5px;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+.function-call-result.success {
+  background-color: #4f7e36;
+}
+
+.function-call-result.error {
+  background-color: #7e3636;
 }
 
 .function-call-header {
