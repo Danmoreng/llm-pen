@@ -41,7 +41,7 @@ To run the project locally:
     npm run dev
     ```
 
-5. Open the local development server link provided by Vite (usually `http://localhost:3000`).
+5. Open the local development server link provided by Vite (usually `http://localhost:5173/`).
 
 To build the project for production, use:
 ```bash
