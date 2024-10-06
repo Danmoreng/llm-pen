@@ -53,11 +53,21 @@ npm run build
 - **OpenAI Model**: Interact with an OpenAI language model via the browser.
 - **Local Model (Ollama)**: Run the model locally if you have Ollama installed and configured.
 
-The app offers a card-based interface with two buttons to choose between models. The UI is centered and styled with modern, bright colors to enhance user experience.
-
 ### Disclaimer
 - **OpenAI API Key**: If you choose to use the OpenAI model, you will need to provide your own OpenAI API key. This is not provided by the application.
 - **Ollama Configuration**: If you're using the application with the Ollama model from the live GitHub Pages version, ensure that **Ollama is configured to allow CORS (Cross-Origin Resource Sharing)** to enable proper communication between the browser and your local Ollama instance.
+
+## Example using GPT4o
+
+![Screenshot Jumping Game](./screenshots/demo2.PNG)
+### Queries:
+
+1. ```Please implement a simple platform jump game, where a character has to move from left to right, collect coins and reach the goal. Use basic shapes for character, coins and game level design.```
+
+2. ```Can you add some platforms where I can jump on? One coin is not reachable.```
+
+### Result
+https://codepen.io/danmoreng/pen/MWNeGYR
 
 ## License
 
