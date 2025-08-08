@@ -44,5 +44,55 @@ export const tools = [
                 required: ["section", "target", "newContent"]
             }
         }
+    },
+    {
+        type: 'function',
+        function: {
+            name: "insertCodeAtPosition",
+            description: "Inserts new code at a specific line number in the specified section (HTML, CSS, or JavaScript).",
+            parameters: {
+                type: "object",
+                properties: {
+                    section: {
+                        type: "string",
+                        description: "The section to insert code into ('html', 'css', or 'js')."
+                    },
+                    lineNumber: {
+                        type: "number",
+                        description: "The line number (0-indexed) where the new code should be inserted."
+                    },
+                    newCode: {
+                        type: "string",
+                        description: "The new code to insert at the specified line number."
+                    }
+                },
+                required: ["section", "lineNumber", "newCode"]
+            }
+        }
+    },
+    {
+        type: 'function',
+        function: {
+            name: "deleteCodeBlock",
+            description: "Deletes a block of code from the specified section (HTML, CSS, or JavaScript) between two line numbers.",
+            parameters: {
+                type: "object",
+                properties: {
+                    section: {
+                        type: "string",
+                        description: "The section to delete code from ('html', 'css', or 'js')."
+                    },
+                    startLine: {
+                        type: "number",
+                        description: "The starting line number (0-indexed) of the block to delete."
+                    },
+                    endLine: {
+                        type: "number",
+                        description: "The ending line number (0-indexed) of the block to delete."
+                    }
+                },
+                required: ["section", "startLine", "endLine"]
+            }
+        }
     }
 ];

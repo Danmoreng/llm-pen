@@ -2,6 +2,7 @@ import {defineStore} from 'pinia';
 import {sendChatToOpenAI} from '@/api/openai';
 import {sendChatToOllama} from '@/api/ollama';
 import {sendChatToGemini} from '@/api/gemini';
+import {sendChatToLlamaCpp} from '@/api/llamaCpp';
 import {useEditorStore} from '@/stores/editorStore';
 import {generateSystemPrompt} from '@/constants/systemPrompt';
 import {tools} from '@/constants/tools';  // Tools are now imported from a separate file
@@ -60,6 +61,8 @@ export const useServiceStore = defineStore('serviceStore', {
                     result = await this.handleOpenAIRequest();
                 } else if (this.selectedService === 'gemini') {
                     result = await this.handleGeminiRequest();
+                } else if (this.selectedService === 'llama.cpp') {
+                    result = await this.handleLlamaCppRequest();
                 }
 
                 if (result) {
@@ -171,6 +174,26 @@ export const useServiceStore = defineStore('serviceStore', {
             }
         },
 
+        async handleLlamaCppRequest() {
+            const editorStore = useEditorStore();
+            const currentSystemPrompt = generateSystemPrompt(
+                editorStore.htmlContent,
+                editorStore.cssContent,
+                editorStore.jsContent
+            );
+
+            try {
+                return await sendChatToLlamaCpp(
+                    this.selectedModel,
+                    this.chatMessages,
+                    currentSystemPrompt, // Updated system prompt with the current code
+                    this.tools
+                );
+            } catch (error) {
+                this.handleError(error);
+            }
+        },
+
         handleAssistantResponse(result) {
             // Push the message content if it exists
             if (result.message?.content) {
@@ -210,6 +233,22 @@ export const useServiceStore = defineStore('serviceStore', {
                         console.error("Gemini function call is missing name or arguments.");
                     }
                 }
+            } else if (this.selectedService === 'llama.cpp') {
+                // llama.cpp-style function call handling (OpenAI-compatible)
+                const toolCalls = result.tool_calls || [];
+                for (const toolCall of toolCalls) {
+                    const {name, arguments: functionArgs} = toolCall.function;
+                    if (name && functionArgs) {
+                        try {
+                            const parsedArgs = JSON.parse(functionArgs);
+                            this.handleFunctionCall(name, parsedArgs);
+                        } catch (error) {
+                            console.error("Failed to parse function arguments for llama.cpp:", error);
+                        }
+                    } else {
+                        console.error("llama.cpp function call is missing name or arguments.");
+                    }
+                }
             } else {
                 // OpenAI-style function call handling
                 if (result.finish_reason === 'function_call' && result.message.function_call) {
@@ -235,6 +274,8 @@ export const useServiceStore = defineStore('serviceStore', {
                 errorSource = 'Ollama';
             } else if (this.selectedService === 'gemini') {
                 errorSource = 'Gemini';
+            } else if (this.selectedService === 'llama.cpp') {
+                errorSource = 'llama.cpp';
             } else {
                 errorSource = 'OpenAI';
             }
@@ -270,6 +311,32 @@ export const useServiceStore = defineStore('serviceStore', {
                         resultObject = {
                             result: 'error',
                             log: "Missing section, target, or newContent in updateCodePart function call."
+                        };
+                        console.error(resultObject.log);
+                    }
+                },
+                // Handle inserting code at a specific position
+                insertCodeAtPosition: () => {
+                    const {section, lineNumber, newCode} = functionArgs;
+                    if (section !== undefined && lineNumber !== undefined && newCode !== undefined) {
+                        resultObject = editorStore.insertCodeAtPosition(section, lineNumber, newCode);
+                    } else {
+                        resultObject = {
+                            result: 'error',
+                            log: "Missing section, lineNumber, or newCode in insertCodeAtPosition function call."
+                        };
+                        console.error(resultObject.log);
+                    }
+                },
+                // Handle deleting a code block
+                deleteCodeBlock: () => {
+                    const {section, startLine, endLine} = functionArgs;
+                    if (section !== undefined && startLine !== undefined && endLine !== undefined) {
+                        resultObject = editorStore.deleteCodeBlock(section, startLine, endLine);
+                    } else {
+                        resultObject = {
+                            result: 'error',
+                            log: "Missing section, startLine, or endLine in deleteCodeBlock function call."
                         };
                         console.error(resultObject.log);
                     }

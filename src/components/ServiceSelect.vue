@@ -5,6 +5,7 @@
       <option value="local">Local (Ollama)</option>
       <option value="openai">OpenAI</option>
       <option value="gemini">Google Gemini</option>
+      <option value="llama.cpp">llama.cpp</option>
     </select>
   </div>
 </template>

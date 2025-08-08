@@ -11,6 +11,7 @@
         <GeminiKeyInput />
         <GeminiModelSelect />
       </template>
+      <LlamaCppModelSelect v-else-if="serviceStore.selectedService === 'llama.cpp'" />
       <p v-else>No Service selected.</p>
 
       <ChatMessages />
@@ -44,6 +45,7 @@ import LocalModelSelect from '@/components/LocalModelSelect.vue';
 import OpenAIKeyInput from '@/components/OpenAIKeyInput.vue';
 import GeminiKeyInput from '@/components/GeminiKeyInput.vue';
 import GeminiModelSelect from '@/components/GeminiModelSelect.vue';
+import LlamaCppModelSelect from '@/components/LlamaCppModelSelect.vue';
 import ChatMessages from '@/components/ChatMessages.vue';
 import ChatInput from '@/components/ChatInput.vue';
 import EditorSection from '@/components/EditorSection.vue';
