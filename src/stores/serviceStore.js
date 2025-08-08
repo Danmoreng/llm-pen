@@ -1,6 +1,7 @@
 import {defineStore} from 'pinia';
 import {sendChatToOpenAI} from '@/api/openai';
 import {sendChatToOllama} from '@/api/ollama';
+import {sendChatToGemini} from '@/api/gemini';
 import {useEditorStore} from '@/stores/editorStore';
 import {generateSystemPrompt} from '@/constants/systemPrompt';
 import {tools} from '@/constants/tools';  // Tools are now imported from a separate file
@@ -52,9 +53,14 @@ export const useServiceStore = defineStore('serviceStore', {
             this.chatMessages.push({role: 'user', content: userMessage});
 
             try {
-                const result = this.selectedService === 'local'
-                    ? await this.handleOllamaRequest()
-                    : await this.handleOpenAIRequest();
+                let result;
+                if (this.selectedService === 'local') {
+                    result = await this.handleOllamaRequest();
+                } else if (this.selectedService === 'openai') {
+                    result = await this.handleOpenAIRequest();
+                } else if (this.selectedService === 'gemini') {
+                    result = await this.handleGeminiRequest();
+                }
 
                 if (result) {
                     this.handleAssistantResponse(result);
@@ -124,6 +130,47 @@ export const useServiceStore = defineStore('serviceStore', {
             }
         },
 
+        async handleGeminiRequest() {
+            const editorStore = useEditorStore();
+            const currentSystemPrompt = generateSystemPrompt(
+                editorStore.htmlContent,
+                editorStore.cssContent,
+                editorStore.jsContent
+            );
+
+            try {
+                return await sendChatToGemini(
+                    this.apiKey,
+                    this.selectedModel,
+                    this.chatMessages,
+                    currentSystemPrompt, // Updated system prompt with the current code
+                    this.tools
+                );
+            } catch (error) {
+                this.handleError(error);
+            }
+        },
+
+        // Streaming version of handleGeminiRequest for real-time responses
+        // This could be used in the future for a better user experience
+        async handleGeminiRequestStream(callback) {
+            const editorStore = useEditorStore();
+            const currentSystemPrompt = generateSystemPrompt(
+                editorStore.htmlContent,
+                editorStore.cssContent,
+                editorStore.jsContent
+            );
+
+            try {
+                // This would require modifying the UI to handle streaming responses
+                // For now, we're using the non-streaming version above
+                console.warn("Streaming not yet implemented for Gemini in the UI");
+                return await this.handleGeminiRequest();
+            } catch (error) {
+                this.handleError(error);
+            }
+        },
+
         handleAssistantResponse(result) {
             // Push the message content if it exists
             if (result.message?.content) {
@@ -147,6 +194,22 @@ export const useServiceStore = defineStore('serviceStore', {
                         console.error("Ollama function call is missing name or arguments.");
                     }
                 }
+            } else if (this.selectedService === 'gemini') {
+                // Gemini-style function call handling
+                const toolCalls = result.tool_calls || [];
+                for (const toolCall of toolCalls) {
+                    const {name, arguments: functionArgs} = toolCall.function;
+                    if (name && functionArgs) {
+                        try {
+                            const parsedArgs = JSON.parse(functionArgs);
+                            this.handleFunctionCall(name, parsedArgs);
+                        } catch (error) {
+                            console.error("Failed to parse function arguments for Gemini:", error);
+                        }
+                    } else {
+                        console.error("Gemini function call is missing name or arguments.");
+                    }
+                }
             } else {
                 // OpenAI-style function call handling
                 if (result.finish_reason === 'function_call' && result.message.function_call) {
@@ -167,7 +230,15 @@ export const useServiceStore = defineStore('serviceStore', {
         },
 
         handleError(error) {
-            const errorSource = this.selectedService === 'local' ? 'Ollama' : 'OpenAI';
+            let errorSource;
+            if (this.selectedService === 'local') {
+                errorSource = 'Ollama';
+            } else if (this.selectedService === 'gemini') {
+                errorSource = 'Gemini';
+            } else {
+                errorSource = 'OpenAI';
+            }
+            
             this.errorMessage = `${errorSource} Error: ${error.message}`;
             this.chatMessages.push({role: 'system', content: `${errorSource} Error: ${error.message}`});
         },

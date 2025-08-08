@@ -7,6 +7,10 @@
       <!-- Conditional rendering based on selected service -->
       <LocalModelSelect v-if="serviceStore.selectedService === 'local'" />
       <OpenAIKeyInput v-else-if="serviceStore.selectedService === 'openai'" />
+      <template v-else-if="serviceStore.selectedService === 'gemini'">
+        <GeminiKeyInput />
+        <GeminiModelSelect />
+      </template>
       <p v-else>No Service selected.</p>
 
       <ChatMessages />
@@ -38,6 +42,8 @@ import { useServiceStore } from '@/stores/serviceStore';
 import ServiceSelect from '@/components/ServiceSelect.vue';
 import LocalModelSelect from '@/components/LocalModelSelect.vue';
 import OpenAIKeyInput from '@/components/OpenAIKeyInput.vue';
+import GeminiKeyInput from '@/components/GeminiKeyInput.vue';
+import GeminiModelSelect from '@/components/GeminiModelSelect.vue';
 import ChatMessages from '@/components/ChatMessages.vue';
 import ChatInput from '@/components/ChatInput.vue';
 import EditorSection from '@/components/EditorSection.vue';
