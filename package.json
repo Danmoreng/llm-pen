@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@vitejs/plugin-vue": "^5.1.4",
     "marked": "^14.1.2",
     "pinia": "^2.2.4",
