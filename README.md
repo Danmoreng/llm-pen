@@ -1,13 +1,17 @@
 # LLM-Pen
 
-LLM-Pen is a web-based application built with Vue.js and Vite that allows users to chat with either OpenAI's language models or a locally hosted model via Ollama. The site is deployed on GitHub Pages and operates entirely in the browser, without requiring a backend server. It can also be cloned and run locally for development or offline use.
+LLM-Pen is a web-based application built with Vue.js and Vite that allows users to chat with various language models including OpenAI's models, locally hosted models via Ollama, Google's Gemini models, and llama.cpp models. The site is deployed on GitHub Pages and operates entirely in the browser, without requiring a backend server. It can also be cloned and run locally for development or offline use.
 
 ![Screenshot of the LLM-Pen Interface](./screenshots/demo1.JPG)
 
 ## Features
 
-- **OpenAI Model**: Chat with an OpenAI-based language model directly from the web interface.
-- **Local Model (Ollama)**: Switch to a local Ollama-hosted model for offline usage.
+- **Multiple LLM Backends**: Support for OpenAI, Ollama, Google Gemini, and llama.cpp models
+- **Enhanced Code Editing Functions**: 
+  - `replaceCode`: Replace entire sections of HTML, CSS, or JavaScript
+  - `updateCodePart`: Update specific parts of a section by finding and replacing target strings
+  - `insertCodeAtPosition`: Insert new code at specific line numbers
+  - `deleteCodeBlock`: Delete blocks of code between specific line numbers
 - **Vue.js**: The application is built using Vue.js, offering a responsive and modern UI.
 - **Vite**: Vite is used for fast development and bundling.
 - **No Backend Required**: The project is deployed on GitHub Pages, making it easy to use directly from the browser without a backend.
@@ -48,14 +52,62 @@ To build the project for production, use:
 npm run build
 ```
 
+## Supported LLM Backends
+
+LLM-Pen supports four different LLM backends:
+
+1. **OpenAI**: Use any OpenAI model by providing your API key
+2. **Ollama**: Use locally hosted models via Ollama (requires Ollama installation)
+3. **Google Gemini**: Use Google's Gemini models by providing your API key
+4. **llama.cpp**: Use locally hosted llama.cpp models (requires llama.cpp server installation)
+
+### Backend Setup Instructions
+
+#### OpenAI
+- Select "OpenAI" from the service dropdown
+- Enter your OpenAI API key when prompted
+- Select the model you want to use (e.g., gpt-4, gpt-3.5-turbo)
+
+#### Ollama
+- Install and run Ollama locally (https://ollama.com/)
+- Select "Local (Ollama)" from the service dropdown
+- Select the model you want to use from the available models list
+- Note: Ollama must be configured to allow CORS for web access
+
+#### Google Gemini
+- Select "Google Gemini" from the service dropdown
+- Enter your Google Gemini API key when prompted
+- Select the model you want to use from the available models list
+
+#### llama.cpp
+- Install and run llama.cpp server locally (https://github.com/ggerganov/llama.cpp)
+- Select "llama.cpp" from the service dropdown
+- Select the model you want to use from the available models list
+- Note: The llama.cpp server must be running on localhost:8080
+
 ## Usage
 
-- **OpenAI Model**: Interact with an OpenAI language model via the browser.
-- **Local Model (Ollama)**: Run the model locally if you have Ollama installed and configured.
+- **Multiple LLM Backends**: Switch between OpenAI, Ollama, Google Gemini, and llama.cpp models using the service selector.
+- **Enhanced Code Editing**: The AI can now perform more precise code modifications using the enhanced functions:
+  - Replace entire sections of code
+  - Update specific parts of code
+  - Insert new code at specific positions
+  - Delete unwanted code blocks
 
 ### Disclaimer
-- **OpenAI API Key**: If you choose to use the OpenAI model, you will need to provide your own OpenAI API key. This is not provided by the application.
-- **Ollama Configuration**: If you're using the application with the Ollama model from the live GitHub Pages version, ensure that **Ollama is configured to allow CORS (Cross-Origin Resource Sharing)** to enable proper communication between the browser and your local Ollama instance.
+- **API Keys**: If you choose to use OpenAI or Google Gemini models, you will need to provide your own API keys. These are not provided by the application.
+- **Local Model Configuration**: If you're using the application with Ollama or llama.cpp models from the live GitHub Pages version, ensure that the respective servers are configured to allow CORS (Cross-Origin Resource Sharing) to enable proper communication between the browser and your local instances.
+
+## Enhanced Code Editing Functions
+
+LLM-Pen now includes enhanced code editing functions that allow the AI to perform more precise modifications to your code:
+
+1. **replaceCode(section, newCode)**: Replaces the entire content of the specified section (HTML, CSS, or JavaScript).
+2. **updateCodePart(section, target, newContent)**: Finds the specified target string in the section and replaces it with the provided newContent.
+3. **insertCodeAtPosition(section, lineNumber, newCode)**: Inserts new code at a specific line number in the specified section.
+4. **deleteCodeBlock(section, startLine, endLine)**: Deletes a block of code from the specified section between two line numbers.
+
+These functions enable more precise control over code modifications, allowing the AI to make targeted changes without affecting other parts of your code.
 
 ## Example using GPT4o
 

@@ -21,6 +21,12 @@
 - Enhanced system prompts to better guide the LLMs on when to use each function
 - Updated all relevant files to support the new functions
 
+### 4. Documentation Updates
+- Updated README.md with information about all supported backends
+- Added detailed setup instructions for each backend
+- Documented the enhanced code editing functions
+- Updated feature list and usage instructions
+
 ## Current Project Status
 
 The LLM-Pen application now supports four different LLM backends:
@@ -44,11 +50,6 @@ All backends follow a consistent architecture and provide the same functionality
 - Add visual indicators for different backends
 - Improve error display and user guidance
 
-### 3. Documentation Updates
-- Update README.md with information about new backends
-- Document setup instructions for Google Gemini and llama.cpp
-- Create usage examples for each backend
-
 ## Files Modified Today
 
 1. `src/api/gemini.js` - Created Google Gemini API client
@@ -66,9 +67,10 @@ All backends follow a consistent architecture and provide the same functionality
 13. `src/constants/systemPrompt.js` - Updated system prompt with new function descriptions
 14. `src/stores/editorStore.js` - Implemented new functions (insertCodeAtPosition, deleteCodeBlock)
 15. `src/stores/serviceStore.js` - Added handlers for new functions
-16. `QWEN.md` - Updated collaboration notes
-17. `PLAN.md` - Created project plan
-18. `SESSION_SUMMARY.md` - Updated session summary
+16. `README.md` - Updated with information about new backends and functions
+17. `QWEN.md` - Updated collaboration notes
+18. `PLAN.md` - Created project plan
+19. `SESSION_SUMMARY.md` - Updated session summary
 
 ## Notes for Next Session
 
