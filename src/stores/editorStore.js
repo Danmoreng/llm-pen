@@ -125,6 +125,96 @@ export const useEditorStore = defineStore('editorStore', {
             return {result: 'error', log: `Unhandled section: ${section}`};
         },
 
+        insertCodeAtPosition(section, lineNumber, newCode) {
+            console.log('Inserting code at position...');
+            console.log('Section:', section);
+            console.log('Line number:', lineNumber);
+            console.log('New code:', newCode);
+
+            let currentContent = '';
+
+            // Fetch the appropriate section content
+            if (section === 'html') {
+                currentContent = this.htmlContent;
+            } else if (section === 'css') {
+                currentContent = this.cssContent;
+            } else if (section === 'js') {
+                currentContent = this.jsContent;
+            } else {
+                return {result: 'error', log: `Unknown section: ${section}`};
+            }
+
+            // Split the content into lines
+            const lines = currentContent.split('\n');
+
+            // Check if the line number is valid
+            if (lineNumber < 0 || lineNumber > lines.length) {
+                return {result: 'error', log: `Invalid line number: ${lineNumber}. Must be between 0 and ${lines.length}.`};
+            }
+
+            // Insert the new code at the specified line number
+            lines.splice(lineNumber, 0, newCode);
+
+            // Join the lines back together
+            const newContent = lines.join('\n');
+
+            // Update the appropriate section
+            if (section === 'html') {
+                this.htmlContent = newContent;
+            } else if (section === 'css') {
+                this.cssContent = newContent;
+            } else if (section === 'js') {
+                this.jsContent = newContent;
+            }
+
+            return {result: 'success', log: `Code inserted successfully at line ${lineNumber}.`};
+        },
+
+        deleteCodeBlock(section, startLine, endLine) {
+            console.log('Deleting code block...');
+            console.log('Section:', section);
+            console.log('Start line:', startLine);
+            console.log('End line:', endLine);
+
+            let currentContent = '';
+
+            // Fetch the appropriate section content
+            if (section === 'html') {
+                currentContent = this.htmlContent;
+            } else if (section === 'css') {
+                currentContent = this.cssContent;
+            } else if (section === 'js') {
+                currentContent = this.jsContent;
+            } else {
+                return {result: 'error', log: `Unknown section: ${section}`};
+            }
+
+            // Split the content into lines
+            const lines = currentContent.split('\n');
+
+            // Check if the line numbers are valid
+            if (startLine < 0 || endLine >= lines.length || startLine > endLine) {
+                return {result: 'error', log: `Invalid line range: ${startLine}-${endLine}. Valid range is 0-${lines.length - 1}.`};
+            }
+
+            // Remove the lines from startLine to endLine (inclusive)
+            lines.splice(startLine, endLine - startLine + 1);
+
+            // Join the lines back together
+            const newContent = lines.join('\n');
+
+            // Update the appropriate section
+            if (section === 'html') {
+                this.htmlContent = newContent;
+            } else if (section === 'css') {
+                this.cssContent = newContent;
+            } else if (section === 'js') {
+                this.jsContent = newContent;
+            }
+
+            return {result: 'success', log: `Code block from line ${startLine} to ${endLine} deleted successfully.`};
+        },
+
 
         // Get the full merged code for rendering in iframe
         getMergedCode() {

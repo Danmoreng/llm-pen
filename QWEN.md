@@ -19,11 +19,23 @@ This approach allows you to:
 - [x] Integrated with service store
 - [x] Added model validation
 
+### llama.cpp Support
+- [x] Created llama.cpp API client
+- [x] Implemented function to send chat requests to llama.cpp server
+- [x] Added communication with localhost endpoint
+- [x] Implemented response processing in llama.cpp format
+- [x] Added proper error handling
+- [x] Updated service selection to include "llama.cpp" option
+- [x] Created llama.cpp model selection component with refresh functionality
+- [x] Extended service store for llama.cpp service selection
+- [x] Implemented `handleLlamaCppRequest()` method
+- [x] Added proper response processing for llama.cpp format
+- [x] Updated UI logic to conditionally render LlamaCppModelSelect
+
 ### Next Steps
-- [ ] Test implementation with actual Gemini API key
+- [ ] Test llama.cpp implementation with actual llama.cpp server
 - [ ] Verify all UI components work correctly
 - [ ] Validate error handling with various scenarios
-- [ ] Consider implementing streaming in the UI
 
 ## Running the Application
 
