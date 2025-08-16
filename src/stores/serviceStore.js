@@ -54,24 +54,78 @@ export const useServiceStore = defineStore('serviceStore', {
             this.chatMessages.push({role: 'user', content: userMessage});
 
             try {
-                let result;
-                if (this.selectedService === 'local') {
-                    result = await this.handleOllamaRequest();
-                } else if (this.selectedService === 'openai') {
-                    result = await this.handleOpenAIRequest();
-                } else if (this.selectedService === 'gemini') {
-                    result = await this.handleGeminiRequest();
-                } else if (this.selectedService === 'llama.cpp') {
-                    result = await this.handleLlamaCppRequest();
-                }
+                if (this.selectedService === 'gemini') {
+                    // Use streaming for Gemini
+                    await this.handleStreamingGeminiRequest();
+                } else {
+                    let result;
+                    if (this.selectedService === 'local') {
+                        result = await this.handleOllamaRequest();
+                    } else if (this.selectedService === 'openai') {
+                        result = await this.handleOpenAIRequest();
+                    } else if (this.selectedService === 'llama.cpp') {
+                        result = await this.handleLlamaCppRequest();
+                    }
 
-                if (result) {
-                    this.handleAssistantResponse(result);
+                    if (result) {
+                        this.handleAssistantResponse(result);
+                    }
                 }
             } catch (error) {
                 this.handleError(error);
             } finally {
                 this.isLoading = false;
+            }
+        },
+
+        async handleStreamingGeminiRequest() {
+            try {
+                const stream = await this.handleGeminiRequestStream();
+                
+                // Create a temporary message for streaming content
+                const tempMessageIndex = this.chatMessages.length;
+                this.chatMessages.push({role: 'assistant', content: ''});
+                
+                let fullContent = '';
+                let hasToolCalls = false;
+                let toolCalls = [];
+                
+                for await (const chunk of stream) {
+                    if (chunk.type === "content") {
+                        // Update the temporary message with new content
+                        fullContent += chunk.content;
+                        this.chatMessages[tempMessageIndex].content = fullContent;
+                    } else if (chunk.type === "tool_calls") {
+                        hasToolCalls = true;
+                        toolCalls = chunk.tool_calls;
+                    } else if (chunk.type === "error") {
+                        throw new Error(chunk.error);
+                    }
+                }
+                
+                // Remove the temporary message if it's empty and we have tool calls
+                if (hasToolCalls && fullContent === '') {
+                    this.chatMessages.pop();
+                }
+                
+                // Process tool calls if we have them
+                if (hasToolCalls) {
+                    for (const toolCall of toolCalls) {
+                        const {name, arguments: functionArgs} = toolCall.function;
+                        if (name && functionArgs) {
+                            try {
+                                const parsedArgs = JSON.parse(functionArgs);
+                                this.handleFunctionCall(name, parsedArgs);
+                            } catch (error) {
+                                console.error("Failed to parse function arguments for Gemini:", error);
+                            }
+                        } else {
+                            console.error("Gemini function call is missing name or arguments.");
+                        }
+                    }
+                }
+            } catch (error) {
+                this.handleError(error);
             }
         },
 
@@ -155,8 +209,7 @@ export const useServiceStore = defineStore('serviceStore', {
         },
 
         // Streaming version of handleGeminiRequest for real-time responses
-        // This could be used in the future for a better user experience
-        async handleGeminiRequestStream(callback) {
+        async handleGeminiRequestStream() {
             const editorStore = useEditorStore();
             const currentSystemPrompt = generateSystemPrompt(
                 editorStore.htmlContent,
@@ -165,10 +218,19 @@ export const useServiceStore = defineStore('serviceStore', {
             );
 
             try {
-                // This would require modifying the UI to handle streaming responses
-                // For now, we're using the non-streaming version above
-                console.warn("Streaming not yet implemented for Gemini in the UI");
-                return await this.handleGeminiRequest();
+                // Import the streaming function
+                const { streamChatFromGemini } = await import('@/api/gemini');
+                
+                // Create a streaming response
+                const stream = streamChatFromGemini(
+                    this.apiKey,
+                    this.selectedModel,
+                    this.chatMessages,
+                    currentSystemPrompt,
+                    this.tools
+                );
+                
+                return stream;
             } catch (error) {
                 this.handleError(error);
             }
@@ -270,18 +332,39 @@ export const useServiceStore = defineStore('serviceStore', {
 
         handleError(error) {
             let errorSource;
+            let errorDetails = {};
+            
             if (this.selectedService === 'local') {
                 errorSource = 'Ollama';
+                errorDetails = {
+                    title: 'Ollama Connection Error',
+                    suggestion: 'Make sure Ollama is running on your system. You can start it by running "ollama serve" in your terminal.'
+                };
             } else if (this.selectedService === 'gemini') {
                 errorSource = 'Gemini';
+                errorDetails = {
+                    title: 'Gemini API Error',
+                    suggestion: 'Check your API key and ensure you have access to the selected model.'
+                };
             } else if (this.selectedService === 'llama.cpp') {
                 errorSource = 'llama.cpp';
+                errorDetails = {
+                    title: 'llama.cpp Connection Error',
+                    suggestion: 'Make sure the llama.cpp server is running on localhost:8080.'
+                };
             } else {
                 errorSource = 'OpenAI';
+                errorDetails = {
+                    title: 'OpenAI API Error',
+                    suggestion: 'Check your API key and ensure you have access to the selected model.'
+                };
             }
             
             this.errorMessage = `${errorSource} Error: ${error.message}`;
-            this.chatMessages.push({role: 'system', content: `${errorSource} Error: ${error.message}`});
+            this.chatMessages.push({
+                role: 'system', 
+                content: `${errorDetails.title}: ${error.message}\n\nSuggestion: ${errorDetails.suggestion}`
+            });
         },
 
         handleFunctionCall(functionName, functionArgs) {

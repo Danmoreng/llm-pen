@@ -11,25 +11,30 @@ This document outlines the tasks required to enhance LLM-Pen with support for ad
 - Handle authentication with API key
 - Process responses in Gemini format
 - Add proper error handling
+- [x] Completed
 
 ### Task 2: Update Service Selection
 - Modify `src/components/ServiceSelect.vue` to include "Google Gemini" option
 - Update styling if needed to accommodate new option
+- [x] Completed
 
 ### Task 3: Add Google Gemini Key Input
 - Create `src/components/GeminiKeyInput.vue` component
 - Implement secure input field for Gemini API key
 - Add validation for API key format
+- [x] Completed
 
 ### Task 4: Extend Service Store for Gemini
 - Update `src/stores/serviceStore.js`
 - Add handling for Gemini service selection
 - Implement `handleGeminiRequest()` method
 - Add proper response processing for Gemini format
+- [x] Completed
 
 ### Task 5: Update UI Logic
 - Modify `src/views/HomeView.vue` to conditionally render GeminiKeyInput
 - Add proper conditional rendering logic
+- [x] Completed
 
 ## Phase 2: Add llama.cpp Support
 
@@ -39,24 +44,29 @@ This document outlines the tasks required to enhance LLM-Pen with support for ad
 - Handle communication with localhost endpoint
 - Process responses in llama.cpp format
 - Add proper error handling
+- [x] Completed
 
 ### Task 2: Update Service Selection
 - Modify `src/components/ServiceSelect.vue` to include "llama.cpp" option
+- [x] Completed
 
 ### Task 3: Add llama.cpp Model Selection
 - Create `src/components/LlamaCppModelSelect.vue` component
 - Implement model selection for locally hosted models
 - Add refresh functionality to detect available models
+- [x] Completed
 
 ### Task 4: Extend Service Store for llama.cpp
 - Update `src/stores/serviceStore.js`
 - Add handling for llama.cpp service selection
 - Implement `handleLlamaCppRequest()` method
 - Add proper response processing for llama.cpp format
+- [x] Completed
 
 ### Task 5: Update UI Logic
 - Modify `src/views/HomeView.vue` to conditionally render LlamaCppModelSelect
 - Add proper conditional rendering logic
+- [x] Completed
 
 ## Phase 3: Refine Available Functions for LLM Coding Capabilities
 
@@ -64,6 +74,7 @@ This document outlines the tasks required to enhance LLM-Pen with support for ad
 - Review existing `replaceCode` and `updateCodePart` functions
 - Identify limitations in current implementation
 - Document use cases where current functions are insufficient
+- [x] Completed
 
 ### Task 2: Design Enhanced Function Set
 - Define new functions for:
@@ -75,32 +86,59 @@ This document outlines the tasks required to enhance LLM-Pen with support for ad
   - `addEventListeners`: Add JavaScript event listeners
 - Define function parameters and return values
 - Create detailed documentation for each function
+- [x] Partially completed (implemented `insertCodeAtPosition` and `deleteCodeBlock`)
 
 ### Task 3: Implement New Functions in Editor Store
 - Update `src/stores/editorStore.js`
 - Add implementations for new functions
 - Ensure proper error handling and validation
 - Add logging for debugging purposes
+- [x] Completed (for `insertCodeAtPosition` and `deleteCodeBlock`)
 
 ### Task 4: Update Tools Definition
 - Modify `src/constants/tools.js`
 - Add definitions for new functions
 - Maintain compatibility with existing functions
 - Update function descriptions and parameters
+- [x] Completed (for `insertCodeAtPosition` and `deleteCodeBlock`)
 
 ### Task 5: Update System Prompt
 - Modify `src/constants/systemPrompt.js`
 - Include documentation for new functions
 - Provide clear examples of when to use each function
 - Optimize prompt for better function selection
+- [x] Completed (for `insertCodeAtPosition` and `deleteCodeBlock`)
 
 ### Task 6: Update Function Call Handling
 - Update `src/stores/serviceStore.js`
 - Extend `handleFunctionCall()` to support new functions
 - Add proper mapping between function names and implementations
 - Implement fallback for unknown functions
+- [x] Completed (for `insertCodeAtPosition` and `deleteCodeBlock`)
 
-## Phase 4: Testing and Integration
+## Phase 4: UI/UX Enhancements
+
+### Task 1: Implement Streaming Responses
+- Add streaming support for Google Gemini in the UI
+- Create visual indicators for streaming status
+- [x] Completed
+
+### Task 2: Add Visual Backend Indicators
+- Create colored badges to show selected backend
+- Implement distinct colors for each backend
+- [x] Completed
+
+### Task 3: Enhance Error Handling
+- Improve error messages with specific guidance
+- Add contextual suggestions for resolving issues
+- [x] Completed
+
+### Task 4: Update Documentation
+- Update README.md with new UI features
+- Update ARCHITECTURE.md with UI component descriptions
+- [x] Completed
+
+## Phase 5: Testing and Integration
 
 ### Task 1: Test Google Gemini Integration
 - Test API communication with various models
@@ -132,18 +170,20 @@ This document outlines the tasks required to enhance LLM-Pen with support for ad
 - Validate user flows for new backends
 - Check accessibility considerations
 
-## Phase 5: Documentation and Deployment
+## Phase 6: Documentation and Deployment
 
 ### Task 1: Update README.md
 - Document new backend support
 - Add setup instructions for Google Gemini and llama.cpp
 - Update screenshots if necessary
 - Add information about new functions
+- [x] Updated with UI enhancements
 
 ### Task 2: Update ARCHITECTURE.md
 - Document new backend integrations
 - Update component descriptions
 - Add information about enhanced functions
+- [x] Updated with new components and features
 
 ### Task 3: Create Usage Examples
 - Develop example prompts that showcase new functions
@@ -167,8 +207,9 @@ This document outlines the tasks required to enhance LLM-Pen with support for ad
 1. Google Gemini API support (foundational for cloud-based APIs)
 2. llama.cpp support (different architecture for local models)
 3. Enhanced functions implementation (can be developed in parallel)
-4. Integration and testing of all components
-5. Documentation updates
+4. UI/UX enhancements
+5. Integration and testing of all components
+6. Documentation updates
 
 ## Risk Assessment
 
@@ -177,9 +218,11 @@ This document outlines the tasks required to enhance LLM-Pen with support for ad
 - Local server availability for llama.cpp
 - Differences in function calling implementations across backends
 - Performance issues with larger context windows
+- Browser compatibility issues with streaming responses
 
 ### Mitigation Strategies:
 - Implement proper error handling and retry mechanisms
 - Provide clear user guidance for local setup
 - Create abstraction layers for backend-specific implementations
 - Add performance monitoring and optimization
+- Test streaming functionality across different browsers

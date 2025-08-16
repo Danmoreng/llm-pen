@@ -48,10 +48,13 @@ The primary view that orchestrates the application layout:
 ### 3. Components
 
 #### Chat Components
-- **ServiceSelect.vue**: Allows users to choose between OpenAI and local Ollama models
+- **ServiceSelect.vue**: Allows users to choose between OpenAI, Ollama, Google Gemini, and llama.cpp models
 - **LocalModelSelect.vue**: Model selector for Ollama when local service is chosen
 - **OpenAIKeyInput.vue**: Input field for OpenAI API key
-- **ChatMessages.vue**: Displays the conversation history
+- **GeminiKeyInput.vue**: Input field for Google Gemini API key
+- **GeminiModelSelect.vue**: Model selector for Google Gemini models
+- **LlamaCppModelSelect.vue**: Model selector for llama.cpp models
+- **ChatMessages.vue**: Displays the conversation history with visual backend indicators and streaming support
 - **ChatInput.vue**: Input field for user messages
 
 #### Editor Components
@@ -88,6 +91,19 @@ Handles communication with local Ollama instances, including:
 - Tool calling implementation
 - Error handling
 
+#### Google Gemini Client (api/gemini.js)
+Handles communication with Google's Gemini API, including:
+- Requests using the official `@google/generative-ai` SDK
+- Streaming response support
+- Function calling for code modifications
+- Error handling with specific error types
+
+#### llama.cpp Client (api/llamaCpp.js)
+Handles communication with locally hosted llama.cpp models, including:
+- Requests to localhost:8080 (OpenAI-compatible API)
+- Function calling for code modifications
+- Error handling for common connection issues
+
 ### 6. Constants
 
 #### System Prompt (constants/systemPrompt.js)
@@ -116,9 +132,11 @@ Defines the available functions that AI models can call:
 
 ## Key Features
 
-### Dual AI Support
+### Multi-Backend AI Support
 - OpenAI integration via API key
 - Local Ollama support for offline usage
+- Google Gemini integration via API key
+- Local llama.cpp support for offline usage
 
 ### Real-time Code Editing
 - Split-pane editor for HTML, CSS, and JavaScript
@@ -127,7 +145,9 @@ Defines the available functions that AI models can call:
 
 ### Function Calling
 - AI models can directly modify code through predefined functions
-- Two functions available: full section replacement or partial updates
+- Four functions available: full section replacement, partial updates, code insertion, and code deletion
+- Streaming responses for real-time feedback (Google Gemini)
+- Visual indicators for backend identification
 
 ### Responsive Design
 - Flexible layout that adapts to different screen sizes

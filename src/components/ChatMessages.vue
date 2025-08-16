@@ -1,5 +1,10 @@
 <template>
   <div id="chatMessages" ref="chatContainer" class="chat-container">
+    <!-- Service indicator -->
+    <div v-if="serviceStore.selectedService" class="service-indicator" :class="serviceStore.selectedService" :service="serviceStore.selectedService">
+      {{ getServiceName(serviceStore.selectedService) }}
+    </div>
+    
     <!-- Loop through the messages and render them based on their role -->
     <div v-for="(message, index) in serviceStore.chatMessages" :key="index" :class="messageClass(message)">
       <!-- User and assistant messages -->
@@ -32,6 +37,9 @@
       <span class="dot"></span>
       <span class="dot"></span>
       <span class="dot"></span>
+      <div v-if="serviceStore.selectedService === 'gemini'" class="streaming-indicator">
+        Streaming response...
+      </div>
     </div>
   </div>
 </template>
@@ -59,6 +67,17 @@ const toggleExpand = (index) => {
   }
 };
 
+// Get service name for display
+function getServiceName(serviceKey) {
+  const serviceNames = {
+    'local': 'Ollama',
+    'openai': 'OpenAI',
+    'gemini': 'Google Gemini',
+    'llama.cpp': 'llama.cpp'
+  };
+  return serviceNames[serviceKey] || serviceKey;
+}
+
 // Watch for changes in chat messages and scroll to the bottom when a new message is added
 watch(serviceStore.chatMessages, async () => {
   // Wait for the DOM to finish updating
@@ -81,6 +100,34 @@ function messageClass(message) {
 </script>
 
 <style scoped>
+/* Service indicator styles */
+.service-indicator {
+  background-color: #3498db;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.service-indicator.local {
+  background-color: #2ecc71;
+}
+
+.service-indicator.openai {
+  background-color: #3498db;
+}
+
+.service-indicator.gemini {
+  background-color: #9b59b6;
+}
+
+.service-indicator[service="llama.cpp"] {
+  background-color: #e67e22;
+}
+
 /* Function call block styles */
 .function-call-block {
   border-radius: 5px;
@@ -155,7 +202,8 @@ function messageClass(message) {
 /* Loading dots styles */
 .loading-dots {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   margin: 30px 0;
 }
 
@@ -174,6 +222,12 @@ function messageClass(message) {
 
 .dot:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+.streaming-indicator {
+  margin-top: 10px;
+  font-style: italic;
+  color: #cccccc;
 }
 
 @keyframes bounce {
