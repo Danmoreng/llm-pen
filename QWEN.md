@@ -9,6 +9,9 @@ This approach allows you to:
 2. Verify that the changes work as expected
 3. Provide feedback on any issues or improvements needed
 
+## Important Note for Qwen
+You should NOT run the development server (`npm run dev`) inside this environment. However, you are allowed to run other npm commands like `npm install` if requested to install new libraries or dependencies. Only the user should run the development server to test changes.
+
 ## Implementation Status
 
 ### Google Gemini API Support
@@ -32,10 +35,16 @@ This approach allows you to:
 - [x] Added proper response processing for llama.cpp format
 - [x] Updated UI logic to conditionally render LlamaCppModelSelect
 
+### Completed Enhancements
+- [x] Implemented streaming responses for Google Gemini
+- [x] Added visual indicators for different backends
+- [x] Enhanced error handling with specific guidance for each backend
+- [x] Improved UI/UX for better user experience
+
 ### Next Steps
-- [ ] Test llama.cpp implementation with actual llama.cpp server
-- [ ] Verify all UI components work correctly
-- [ ] Validate error handling with various scenarios
+- [ ] Test UI enhancements with actual API keys and servers
+- [ ] Validate error handling improvements with various scenarios
+- [ ] Consider implementing streaming for other backends
 
 ## Running the Application
 

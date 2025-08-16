@@ -12,6 +12,9 @@ LLM-Pen is a web-based application built with Vue.js and Vite that allows users 
   - `updateCodePart`: Update specific parts of a section by finding and replacing target strings
   - `insertCodeAtPosition`: Insert new code at specific line numbers
   - `deleteCodeBlock`: Delete blocks of code between specific line numbers
+- **Real-time Streaming Responses**: Google Gemini responses stream in real-time for a better user experience
+- **Visual Backend Indicators**: Clear visual indicators show which backend you're currently using
+- **Enhanced Error Handling**: Improved error messages with specific suggestions for resolving issues
 - **Vue.js**: The application is built using Vue.js, offering a responsive and modern UI.
 - **Vite**: Vite is used for fast development and bundling.
 - **No Backend Required**: The project is deployed on GitHub Pages, making it easy to use directly from the browser without a backend.
